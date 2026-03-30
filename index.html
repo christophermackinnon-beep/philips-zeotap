@@ -1,779 +1,654 @@
-import { useState, useEffect, useRef, useMemo } from "react";
-import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import {
-  Database, Shield, Zap, ArrowRight, ChevronRight,
-  Users, Target, RefreshCw, Globe, ShoppingCart, Heart,
-  Layers, Lock, Send, Sparkles, ExternalLink
-} from "lucide-react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Philips × Zeotap — Innovation and You, Powered by Intelligent Data</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: #06080F; color: #E2E8F0; font-family: -apple-system, 'Inter', 'Segoe UI', sans-serif; overflow-x: hidden; }
+    ::selection { background: rgba(43,91,255,0.3); }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #06080F; }
+    ::-webkit-scrollbar-thumb { background: rgba(43,91,255,0.4); border-radius: 3px; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; }
+    @keyframes pulse-glow { 0%,100%{opacity:.4} 50%{opacity:.8} }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+    @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+    .shimmer {
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
+      background-size: 200% 100%;
+      animation: shimmer 3s infinite;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
 
-/* ───────────────────────── DESIGN TOKENS ───────────────────────── */
-const T = {
-  philips:    "#0B5ED7",
-  zeotap:     "#2B5BFF",
-  accent:     "#22D3EE",
-  bg:         "#06080F",
-  bgAlt:      "#0C1221",
-  surface:    "#111827",
-  surfaceAlt: "#1A2332",
-  text:       "#E2E8F0",
-  muted:      "#64748B",
-  border:     "rgba(255,255,255,0.06)",
-  glow:       "rgba(43,91,255,0.15)",
-};
+  <script type="text/babel" data-presets="react">
+    const { useState, useEffect, useRef, useMemo, useCallback } = React;
+    const { motion, AnimatePresence, useInView, useScroll, useTransform, useSpring } = window.Motion;
 
-/* ───────────────────── ANIMATION VARIANTS ──────────────────────── */
-const fadeUp = {
-  hidden:  { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.25, 0.1, 0.25, 1] } },
-};
-const fadeIn = {
-  hidden:  { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.8 } },
-};
-const stagger = {
-  visible: { transition: { staggerChildren: 0.1 } },
-};
-const scaleIn = {
-  hidden:  { opacity: 0, scale: 0.92 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: "easeOut" } },
-};
+    /* ─── TOKENS ─── */
+    const T = {
+      philips:  "#0B5ED7",
+      zeotap:   "#2B5BFF",
+      accent:   "#22D3EE",
+      bg:       "#06080F",
+      bgAlt:    "#0C1221",
+      surface:  "#111827",
+      text:     "#E2E8F0",
+      muted:    "#64748B",
+      border:   "rgba(255,255,255,0.07)",
+    };
 
-/* ───────────────────── FLOATING PARTICLES ──────────────────────── */
-function Particles({ count = 50 }) {
-  const dots = useMemo(() =>
-    Array.from({ length: count }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 2.5 + 1,
-      delay: Math.random() * 4,
-      duration: Math.random() * 6 + 6,
-      opacity: Math.random() * 0.4 + 0.1,
-    })), [count]
-  );
-  return (
-    <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
-      {dots.map(d => (
-        <motion.div
-          key={d.id}
-          style={{
-            position: "absolute",
-            left: `${d.x}%`,
-            top: `${d.y}%`,
-            width: d.size,
-            height: d.size,
-            borderRadius: "50%",
-            background: d.id % 3 === 0 ? T.philips : d.id % 3 === 1 ? T.zeotap : T.accent,
-          }}
-          animate={{
-            y: [0, -30, 0],
-            opacity: [d.opacity, d.opacity * 2, d.opacity],
-          }}
-          transition={{
-            duration: d.duration,
-            delay: d.delay,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-      ))}
-    </div>
-  );
-}
+    /* ─── VARIANTS ─── */
+    const fadeUp = {
+      hidden:  { opacity: 0, y: 48 },
+      visible: { opacity: 1, y: 0, transition: { duration: 0.75, ease: [0.25, 0.1, 0.25, 1] } },
+    };
+    const stagger = { visible: { transition: { staggerChildren: 0.1 } } };
+    const scaleIn = {
+      hidden:  { opacity: 0, scale: 0.9 },
+      visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: "easeOut" } },
+    };
 
-/* ────────────────── ANIMATED GRID BACKGROUND ───────────────────── */
-function GridBg() {
-  return (
-    <div style={{
-      position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none",
-      maskImage: "radial-gradient(ellipse 70% 50% at 50% 30%, black 40%, transparent 100%)",
-      WebkitMaskImage: "radial-gradient(ellipse 70% 50% at 50% 30%, black 40%, transparent 100%)",
-    }}>
-      <div style={{
-        position: "absolute", inset: 0, opacity: 0.08,
-        backgroundImage: `linear-gradient(${T.muted} 1px, transparent 1px), linear-gradient(90deg, ${T.muted} 1px, transparent 1px)`,
-        backgroundSize: "60px 60px",
-      }} />
-    </div>
-  );
-}
+    /* ─── PARTICLES ─── */
+    function Particles({ count = 50 }) {
+      const dots = useMemo(() => Array.from({ length: count }, (_, i) => ({
+        id: i,
+        x: Math.random() * 100, y: Math.random() * 100,
+        size: Math.random() * 2.5 + 0.8,
+        delay: Math.random() * 5,
+        duration: Math.random() * 8 + 6,
+        opacity: Math.random() * 0.35 + 0.08,
+        color: i % 3 === 0 ? T.philips : i % 3 === 1 ? T.zeotap : T.accent,
+      })), [count]);
 
-/* ─────────────── ANIMATED COUNTER COMPONENT ────────────────────── */
-function Counter({ end, prefix = "", suffix = "", duration = 2 }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
-  const [val, setVal] = useState(0);
-
-  useEffect(() => {
-    if (!inView) return;
-    let start = 0;
-    const step = end / (duration * 60);
-    const timer = setInterval(() => {
-      start += step;
-      if (start >= end) { setVal(end); clearInterval(timer); }
-      else setVal(Math.floor(start * 10) / 10);
-    }, 1000 / 60);
-    return () => clearInterval(timer);
-  }, [inView, end, duration]);
-
-  return (
-    <span ref={ref}>
-      {prefix}{typeof end === "number" && end % 1 !== 0 ? val.toFixed(1) : Math.round(val)}{suffix}
-    </span>
-  );
-}
-
-/* ──────────────── GLASSMORPHISM CARD ───────────────────────────── */
-function GlassCard({ children, style, hover = true, ...props }) {
-  return (
-    <motion.div
-      variants={scaleIn}
-      whileHover={hover ? { scale: 1.03, y: -4 } : {}}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      style={{
-        background: "rgba(17,24,39,0.6)",
-        backdropFilter: "blur(16px)",
-        WebkitBackdropFilter: "blur(16px)",
-        border: `1px solid ${T.border}`,
-        borderRadius: 16,
-        padding: "28px 24px",
-        position: "relative",
-        overflow: "hidden",
-        ...style,
-      }}
-      {...props}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-/* ──────────────── SECTION WRAPPER ──────────────────────────────── */
-function Section({ children, style, id }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
-  return (
-    <motion.section
-      ref={ref}
-      id={id}
-      initial="hidden"
-      animate={inView ? "visible" : "hidden"}
-      variants={stagger}
-      style={{
-        maxWidth: 1200,
-        margin: "0 auto",
-        padding: "100px 24px",
-        position: "relative",
-        ...style,
-      }}
-    >
-      {children}
-    </motion.section>
-  );
-}
-
-/* ──────────────────── GRADIENT TEXT ─────────────────────────────── */
-function GradientText({ children, style }) {
-  return (
-    <span style={{
-      background: `linear-gradient(135deg, ${T.philips}, ${T.zeotap}, ${T.accent})`,
-      WebkitBackgroundClip: "text",
-      WebkitTextFillColor: "transparent",
-      backgroundClip: "text",
-      ...style,
-    }}>
-      {children}
-    </span>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   MAIN LANDING PAGE
-   ═══════════════════════════════════════════════════════════════════ */
-export default function PhilipsZeotapLanding() {
-  const { scrollYProgress } = useScroll();
-  const headerOpacity = useTransform(scrollYProgress, [0, 0.05], [0, 1]);
-
-  return (
-    <div style={{ background: T.bg, color: T.text, fontFamily: "'Inter', -apple-system, sans-serif", minHeight: "100vh", overflowX: "hidden" }}>
-
-      {/* ── STICKY NAV ── */}
-      <motion.nav style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-        background: "rgba(6,8,15,0.8)", backdropFilter: "blur(12px)",
-        borderBottom: `1px solid ${T.border}`, opacity: headerOpacity,
-      }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "14px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ width: 8, height: 8, borderRadius: "50%", background: T.philips }} />
-            <span style={{ fontWeight: 700, fontSize: 15, letterSpacing: "-0.02em" }}>Philips</span>
-            <span style={{ color: T.muted, margin: "0 4px" }}>×</span>
-            <span style={{ fontWeight: 700, fontSize: 15, letterSpacing: "-0.02em", color: T.zeotap }}>Zeotap</span>
-          </div>
-          <div style={{ display: "flex", gap: 28, fontSize: 13, color: T.muted }}>
-            {["Challenge", "Platform", "Use Cases", "Results"].map(s => (
-              <a key={s} href={`#${s.toLowerCase().replace(" ", "-")}`} style={{ color: "inherit", textDecoration: "none", transition: "color 0.2s" }}
-                 onMouseOver={e => e.target.style.color = T.text} onMouseOut={e => e.target.style.color = T.muted}>{s}</a>
-            ))}
-          </div>
+      return (
+        <div style={{ position:"absolute", inset:0, overflow:"hidden", pointerEvents:"none", zIndex:1 }}>
+          {dots.map(d => (
+            <motion.div key={d.id}
+              style={{ position:"absolute", left:`${d.x}%`, top:`${d.y}%`, width:d.size, height:d.size, borderRadius:"50%", background:d.color }}
+              animate={{ y:[0,-24,0], opacity:[d.opacity, d.opacity*2.2, d.opacity] }}
+              transition={{ duration:d.duration, delay:d.delay, repeat:Infinity, ease:"easeInOut" }}
+            />
+          ))}
         </div>
-      </motion.nav>
+      );
+    }
 
-      {/* ═══════════ 1. HERO ═══════════ */}
-      <section style={{ position: "relative", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-        {/* Gradient mesh */}
+    /* ─── GRID BG ─── */
+    function GridBg() {
+      return (
         <div style={{
-          position: "absolute", inset: 0,
-          background: `
-            radial-gradient(ellipse 80% 60% at 20% 10%, rgba(11,94,215,0.18) 0%, transparent 60%),
-            radial-gradient(ellipse 70% 50% at 80% 30%, rgba(43,91,255,0.15) 0%, transparent 60%),
-            radial-gradient(ellipse 50% 40% at 50% 80%, rgba(34,211,238,0.08) 0%, transparent 60%)
-          `,
-        }} />
-        <Particles count={60} />
-        <GridBg />
-
-        {/* Beam line */}
-        <motion.div
-          style={{ position: "absolute", top: 0, left: "50%", width: 1, height: "40%", background: `linear-gradient(to bottom, transparent, ${T.zeotap}40, transparent)` }}
-          animate={{ opacity: [0.3, 0.7, 0.3] }}
-          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-        />
-
-        <div style={{ position: "relative", zIndex: 10, textAlign: "center", maxWidth: 900, padding: "0 24px" }}>
-          {/* Eyebrow */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            style={{
-              display: "inline-flex", alignItems: "center", gap: 8,
-              padding: "6px 16px", borderRadius: 999,
-              background: "rgba(43,91,255,0.1)", border: `1px solid rgba(43,91,255,0.2)`,
-              fontSize: 13, fontWeight: 500, marginBottom: 32, color: T.accent,
-            }}
-          >
-            <Sparkles size={14} />
-            Innovation and You — Powered by Intelligent Data
-            <ChevronRight size={14} />
-          </motion.div>
-
-          {/* Title */}
-          <motion.h1
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-            style={{ fontSize: "clamp(2.5rem, 6vw, 4.5rem)", fontWeight: 800, lineHeight: 1.08, letterSpacing: "-0.04em", margin: 0 }}
-          >
-            When <GradientText>health technology</GradientText>{" "}
-            meets <GradientText>intelligent data</GradientText>
-          </motion.h1>
-
-          {/* Subtitle */}
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.5 }}
-            style={{ fontSize: "clamp(1rem, 2vw, 1.25rem)", color: T.muted, maxWidth: 640, margin: "28px auto 0", lineHeight: 1.7 }}
-          >
-            Zeotap CDP is the missing data layer that unifies Philips customer data across every market, product, and channel — turning fragmented profiles into unified, actionable intelligence.
-          </motion.p>
-
-          {/* CTA */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-            style={{ display: "flex", gap: 16, justifyContent: "center", marginTop: 40, flexWrap: "wrap" }}
-          >
-            <motion.button
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.97 }}
-              style={{
-                background: `linear-gradient(135deg, ${T.philips}, ${T.zeotap})`,
-                color: "white", border: "none", borderRadius: 12, padding: "14px 32px",
-                fontSize: 15, fontWeight: 600, cursor: "pointer",
-                display: "flex", alignItems: "center", gap: 8,
-                boxShadow: `0 0 30px rgba(43,91,255,0.3)`,
-              }}
-            >
-              Explore the Vision <ArrowRight size={16} />
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.04, background: "rgba(255,255,255,0.08)" }}
-              whileTap={{ scale: 0.97 }}
-              style={{
-                background: "rgba(255,255,255,0.04)", color: T.text,
-                border: `1px solid rgba(255,255,255,0.12)`, borderRadius: 12,
-                padding: "14px 32px", fontSize: 15, fontWeight: 500, cursor: "pointer",
-              }}
-            >
-              See the Slide Deck
-            </motion.button>
-          </motion.div>
-
-          {/* Co-brand bar */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2, duration: 0.8 }}
-            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 20, marginTop: 64, color: T.muted, fontSize: 13 }}
-          >
-            <span style={{ fontWeight: 700, fontSize: 18, color: T.text }}>PHILIPS</span>
-            <div style={{ width: 1, height: 20, background: T.border }} />
-            <span style={{ fontWeight: 700, fontSize: 18, color: T.zeotap }}>zeotap</span>
-          </motion.div>
+          position:"absolute", inset:0, overflow:"hidden", pointerEvents:"none",
+          maskImage:"radial-gradient(ellipse 80% 55% at 50% 20%, black 30%, transparent 100%)",
+          WebkitMaskImage:"radial-gradient(ellipse 80% 55% at 50% 20%, black 30%, transparent 100%)",
+        }}>
+          <div style={{
+            position:"absolute", inset:0, opacity:0.07,
+            backgroundImage:`linear-gradient(${T.muted} 1px, transparent 1px), linear-gradient(90deg, ${T.muted} 1px, transparent 1px)`,
+            backgroundSize:"64px 64px",
+          }}/>
         </div>
+      );
+    }
 
-        {/* Scroll indicator */}
+    /* ─── COUNTER ─── */
+    function Counter({ end, prefix="", suffix="", duration=2.2 }) {
+      const ref = useRef(null);
+      const inView = useInView(ref, { once:true, margin:"-80px" });
+      const [val, setVal] = useState(0);
+      useEffect(() => {
+        if (!inView) return;
+        let start = 0;
+        const step = end / (duration * 60);
+        const id = setInterval(() => {
+          start += step;
+          if (start >= end) { setVal(end); clearInterval(id); }
+          else setVal(start);
+        }, 1000/60);
+        return () => clearInterval(id);
+      }, [inView, end, duration]);
+      const display = end % 1 !== 0 ? val.toFixed(1) : Math.round(val);
+      return <span ref={ref}>{prefix}{display}{suffix}</span>;
+    }
+
+    /* ─── GLASS CARD ─── */
+    function GlassCard({ children, style, noHover=false, ...props }) {
+      return (
         <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          style={{ position: "absolute", bottom: 40, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}
+          variants={scaleIn}
+          whileHover={noHover ? {} : { scale:1.025, y:-5 }}
+          transition={{ type:"spring", stiffness:280, damping:22 }}
+          style={{
+            background:"rgba(17,24,39,0.55)",
+            backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)",
+            border:`1px solid ${T.border}`,
+            borderRadius:18, padding:"28px 24px",
+            position:"relative", overflow:"hidden",
+            ...style,
+          }}
+          {...props}
         >
-          <span style={{ fontSize: 11, color: T.muted, letterSpacing: "0.1em", textTransform: "uppercase" }}>Scroll</span>
-          <div style={{ width: 1, height: 24, background: `linear-gradient(to bottom, ${T.muted}, transparent)` }} />
+          {children}
         </motion.div>
-      </section>
+      );
+    }
 
-      {/* ═══════════ 2. THE CHALLENGE ═══════════ */}
-      <section id="challenge" style={{ position: "relative", background: T.bgAlt, borderTop: `1px solid ${T.border}`, borderBottom: `1px solid ${T.border}` }}>
-        <Section>
-          <motion.div variants={fadeUp} style={{ textAlign: "center", maxWidth: 780, margin: "0 auto" }}>
-            <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", color: T.accent, marginBottom: 16, display: "block" }}>
-              The Challenge
-            </span>
-            <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.15, margin: "0 0 24px" }}>
-              Powerful tools.{" "}
-              <span style={{ color: T.muted }}>Fragmented data.</span>{" "}
-              Missed opportunities.
-            </h2>
-            <p style={{ fontSize: 17, color: T.muted, lineHeight: 1.75 }}>
-              Philips runs <strong style={{ color: T.text }}>Oracle Eloqua</strong>, <strong style={{ color: T.text }}>Salesforce Marketing Cloud</strong>, and <strong style={{ color: T.text }}>AWS</strong> across 100+ markets — yet customer profiles remain siloed by product line, region, and channel.
-            </p>
-          </motion.div>
+    /* ─── SECTION ─── */
+    function Section({ children, id, style }) {
+      const ref = useRef(null);
+      const inView = useInView(ref, { once:true, margin:"-60px" });
+      return (
+        <motion.section ref={ref} id={id}
+          initial="hidden" animate={inView?"visible":"hidden"} variants={stagger}
+          style={{ maxWidth:1180, margin:"0 auto", padding:"96px 24px", position:"relative", ...style }}
+        >
+          {children}
+        </motion.section>
+      );
+    }
 
-          {/* Convergence visual */}
-          <motion.div variants={fadeUp} style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 20, marginTop: 60, flexWrap: "wrap" }}>
-            {["Oracle Eloqua", "Salesforce MC", "AWS"].map((tool, i) => (
-              <motion.div
-                key={tool}
-                initial={{ opacity: 0, x: (i - 1) * 80 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15, duration: 0.7 }}
-                style={{
-                  padding: "16px 28px", borderRadius: 12,
-                  background: "rgba(255,255,255,0.03)", border: `1px solid rgba(255,255,255,0.08)`,
-                  fontSize: 14, fontWeight: 600, color: T.muted,
-                }}
-              >
-                {tool}
-              </motion.div>
-            ))}
+    /* ─── GRADIENT TEXT ─── */
+    function GT({ children }) {
+      return (
+        <span style={{
+          background:`linear-gradient(125deg, ${T.philips}, ${T.zeotap} 50%, ${T.accent})`,
+          WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text",
+        }}>
+          {children}
+        </span>
+      );
+    }
 
-            <motion.div
-              initial={{ scale: 0 }}
-              whileInView={{ scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.6, type: "spring" }}
-            >
-              <ArrowRight size={20} style={{ color: T.accent }} />
-            </motion.div>
+    /* ─── EYEBROW ─── */
+    function Eyebrow({ children }) {
+      return (
+        <div style={{
+          display:"inline-flex", alignItems:"center", gap:6,
+          fontSize:11, fontWeight:700, letterSpacing:"0.14em", textTransform:"uppercase",
+          color:T.accent, marginBottom:18,
+        }}>
+          <span style={{ width:18, height:1, background:T.accent, display:"inline-block" }}/>
+          {children}
+          <span style={{ width:18, height:1, background:T.accent, display:"inline-block" }}/>
+        </div>
+      );
+    }
 
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.8, type: "spring" }}
-              style={{
-                padding: "16px 28px", borderRadius: 12,
-                background: `linear-gradient(135deg, ${T.philips}20, ${T.zeotap}20)`,
-                border: `1px solid ${T.zeotap}40`,
-                fontSize: 14, fontWeight: 700, color: T.accent,
-                boxShadow: `0 0 40px ${T.zeotap}15`,
-              }}
-            >
-              Zeotap CDP
-            </motion.div>
-          </motion.div>
+    /* ═══════════ MAIN APP ═══════════ */
+    function App() {
+      const { scrollYProgress } = useScroll();
+      const navBg = useTransform(scrollYProgress, [0,0.04], ["rgba(6,8,15,0)","rgba(6,8,15,0.92)"]);
+      const navBorder = useTransform(scrollYProgress, [0,0.04], ["rgba(255,255,255,0)","rgba(255,255,255,0.07)"]);
 
-          {/* Pain points */}
-          <motion.div variants={stagger} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16, marginTop: 48 }}>
-            {[
-              { label: "Siloed Profiles", desc: "Customers unknown across brands" },
-              { label: "Low Match Rates", desc: "Audiences lost in activation" },
-              { label: "Broken Suppression", desc: "Budget wasted on existing customers" },
-              { label: "Consent Gaps", desc: "Governance varies by market" },
-            ].map(p => (
-              <motion.div key={p.label} variants={fadeUp} style={{
-                padding: "20px", borderRadius: 12, background: "rgba(255,255,255,0.02)",
-                border: `1px solid ${T.border}`, textAlign: "center",
-              }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: T.text, marginBottom: 4 }}>{p.label}</div>
-                <div style={{ fontSize: 13, color: T.muted }}>{p.desc}</div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </Section>
-      </section>
+      return (
+        <div style={{ background:T.bg, color:T.text, minHeight:"100vh", overflowX:"hidden" }}>
 
-      {/* ═══════════ 3. CAPABILITIES — UNIFY, GOVERN, ACTIVATE ═══════════ */}
-      <section id="platform" style={{ position: "relative" }}>
-        <Section>
-          <motion.div variants={fadeUp} style={{ textAlign: "center", marginBottom: 56 }}>
-            <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", color: T.accent, marginBottom: 16, display: "block" }}>
-              The Platform
-            </span>
-            <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.15, margin: 0 }}>
-              Built to <GradientText>Unify</GradientText>, <GradientText>Govern</GradientText>, and <GradientText>Activate</GradientText>
-            </h2>
-          </motion.div>
-
-          <motion.div variants={stagger} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24 }}>
-            {[
-              {
-                icon: <Database size={24} />, title: "Unify", color: T.philips,
-                body: "Resolve identities across every Philips touchpoint — Philips.com, regional shops, Avent, Hue, and support — into one privacy-safe customer profile.",
-              },
-              {
-                icon: <Shield size={24} />, title: "Govern", color: T.zeotap,
-                body: "Consent management and data governance built-in. Stay compliant across all markets without slowing down activation.",
-              },
-              {
-                icon: <Zap size={24} />, title: "Activate", color: T.accent,
-                body: "Push audiences directly into Oracle, Salesforce, AWS, and 150+ connectors — no rip-and-replace, just better performance everywhere.",
-              },
-            ].map(c => (
-              <GlassCard key={c.title}>
-                <div style={{
-                  position: "absolute", top: 0, left: 0, right: 0, height: 2,
-                  background: `linear-gradient(90deg, transparent, ${c.color}, transparent)`,
-                }} />
-                <div style={{
-                  width: 48, height: 48, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center",
-                  background: `${c.color}15`, color: c.color, marginBottom: 20,
-                }}>
-                  {c.icon}
-                </div>
-                <h3 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 12px", letterSpacing: "-0.02em" }}>{c.title}</h3>
-                <p style={{ fontSize: 15, color: T.muted, lineHeight: 1.7, margin: 0 }}>{c.body}</p>
-              </GlassCard>
-            ))}
-          </motion.div>
-        </Section>
-      </section>
-
-      {/* ═══════════ 4. STACK INTEGRATION ═══════════ */}
-      <section style={{ position: "relative", background: T.bgAlt, borderTop: `1px solid ${T.border}`, borderBottom: `1px solid ${T.border}` }}>
-        <Section>
-          <motion.div variants={fadeUp} style={{ textAlign: "center", marginBottom: 48 }}>
-            <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", color: T.accent, marginBottom: 16, display: "block" }}>
-              Stack Integration
-            </span>
-            <h2 style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.5rem)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.15, margin: 0 }}>
-              Selective Modernisation — <span style={{ color: T.muted }}>Not Rip-and-Replace</span>
-            </h2>
-          </motion.div>
-
-          {/* Architecture diagram */}
-          <motion.div variants={fadeUp} style={{ position: "relative" }}>
-            {/* Data sources */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 32, alignItems: "center" }}>
-              {/* Left — Sources */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "flex-end" }}>
-                {["Philips.com", "Avent Store", "Hue.com", "HealthSuite", "Support Portal"].map((s, i) => (
-                  <motion.div
-                    key={s}
-                    initial={{ opacity: 0, x: -30 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.08, duration: 0.5 }}
-                    style={{
-                      padding: "10px 20px", borderRadius: 8, fontSize: 13, fontWeight: 500,
-                      background: "rgba(255,255,255,0.03)", border: `1px solid ${T.border}`,
-                      color: T.muted, whiteSpace: "nowrap",
-                    }}
-                  >
-                    {s}
-                  </motion.div>
-                ))}
-                <div style={{ fontSize: 11, color: T.muted, letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 8 }}>Data Sources</div>
+          {/* ── NAV ── */}
+          <motion.nav style={{
+            position:"fixed", top:0, left:0, right:0, zIndex:200,
+            background:navBg, borderBottom:`1px solid`, borderColor:navBorder,
+            backdropFilter:"blur(14px)",
+          }}>
+            <div style={{ maxWidth:1180, margin:"0 auto", padding:"13px 24px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                <span style={{ display:"inline-flex", alignItems:"center", gap:6 }}>
+                  <span style={{ width:7, height:7, borderRadius:"50%", background:T.philips, display:"inline-block" }}/>
+                  <span style={{ fontWeight:800, fontSize:14, letterSpacing:"-0.02em" }}>PHILIPS</span>
+                </span>
+                <span style={{ color:T.muted, fontSize:16 }}>×</span>
+                <span style={{ fontWeight:800, fontSize:14, letterSpacing:"-0.02em", color:T.zeotap }}>zeotap</span>
               </div>
-
-              {/* Centre — Zeotap CDP */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.85 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.4, type: "spring" }}
-                style={{
-                  padding: "32px 28px", borderRadius: 20, textAlign: "center",
-                  background: `linear-gradient(160deg, ${T.philips}18, ${T.zeotap}18)`,
-                  border: `1px solid ${T.zeotap}40`,
-                  boxShadow: `0 0 60px ${T.zeotap}15, inset 0 0 40px ${T.zeotap}05`,
-                  minWidth: 180,
-                }}
-              >
-                <Layers size={32} style={{ color: T.accent, marginBottom: 12 }} />
-                <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.02em" }}>Zeotap CDP</div>
-                <div style={{ fontSize: 12, color: T.muted, marginTop: 8, lineHeight: 1.5 }}>
-                  Identity Resolution<br />
-                  Consent Layer<br />
-                  Audience Engine
-                </div>
-              </motion.div>
-
-              {/* Right — Activation */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "flex-start" }}>
-                {["Oracle Eloqua", "Salesforce MC", "Google Ads", "Meta Ads", "AWS Pinpoint"].map((s, i) => (
-                  <motion.div
-                    key={s}
-                    initial={{ opacity: 0, x: 30 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.08 + 0.6, duration: 0.5 }}
-                    style={{
-                      padding: "10px 20px", borderRadius: 8, fontSize: 13, fontWeight: 500,
-                      background: "rgba(255,255,255,0.03)", border: `1px solid ${T.border}`,
-                      color: T.muted, whiteSpace: "nowrap",
-                    }}
-                  >
-                    {s}
-                  </motion.div>
+              <div style={{ display:"flex", gap:28, fontSize:13 }}>
+                {[["Challenge","#challenge"],["Platform","#platform"],["Use Cases","#usecases"],["Results","#results"]].map(([l,h]) => (
+                  <a key={l} href={h} style={{ color:T.muted, transition:"color .2s" }}
+                    onMouseOver={e=>e.target.style.color=T.text} onMouseOut={e=>e.target.style.color=T.muted}>{l}</a>
                 ))}
-                <div style={{ fontSize: 11, color: T.muted, letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 8 }}>Activation Channels</div>
               </div>
             </div>
+          </motion.nav>
 
-            {/* Flow arrows (simplified with CSS) */}
-            <div style={{
-              position: "absolute", top: "50%", left: "30%", width: "8%", height: 1,
-              background: `linear-gradient(90deg, transparent, ${T.zeotap}60)`,
-              transform: "translateY(-50%)",
-            }} />
-            <div style={{
-              position: "absolute", top: "50%", right: "30%", width: "8%", height: 1,
-              background: `linear-gradient(90deg, ${T.zeotap}60, transparent)`,
-              transform: "translateY(-50%)",
-            }} />
-          </motion.div>
-        </Section>
-      </section>
+          {/* ══════════ HERO ══════════ */}
+          <section style={{ position:"relative", minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", overflow:"hidden" }}>
+            {/* Mesh gradient */}
+            <div style={{ position:"absolute", inset:0, background:`
+              radial-gradient(ellipse 90% 70% at 15% 0%, rgba(11,94,215,0.20) 0%, transparent 55%),
+              radial-gradient(ellipse 70% 60% at 85% 20%, rgba(43,91,255,0.16) 0%, transparent 55%),
+              radial-gradient(ellipse 55% 45% at 50% 90%, rgba(34,211,238,0.10) 0%, transparent 60%)
+            ` }}/>
+            <Particles count={70}/>
+            <GridBg/>
 
-      {/* ═══════════ 5. USE CASES ═══════════ */}
-      <section id="use-cases" style={{ position: "relative" }}>
-        <Section>
-          <motion.div variants={fadeUp} style={{ textAlign: "center", marginBottom: 56 }}>
-            <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", color: T.accent, marginBottom: 16, display: "block" }}>
-              Use Cases
-            </span>
-            <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.15, margin: 0 }}>
-              Six ways Zeotap transforms{" "}
-              <GradientText>Philips Personal Health</GradientText>
-            </h2>
-          </motion.div>
+            {/* Animated beam */}
+            <motion.div style={{
+              position:"absolute", top:0, left:"50%", width:1, height:"45%",
+              background:`linear-gradient(to bottom, transparent, ${T.zeotap}50, transparent)`,
+            }} animate={{ opacity:[0.25,0.75,0.25] }} transition={{ duration:3.5, repeat:Infinity }}/>
 
-          <motion.div variants={stagger} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 20 }}>
-            {[
-              { icon: <Target size={20} />, title: "D2C Acquisition", body: "Build lookalike audiences from Philips.com purchasers and activate across paid media at higher match rates and lower CPAs.", color: T.philips },
-              { icon: <RefreshCw size={20} />, title: "Subscription Upsell", body: "Identify Lumea Try & Buy customers most likely to convert to annual plans and trigger personalised outreach.", color: T.zeotap },
-              { icon: <ShoppingCart size={20} />, title: "Cross-Category Growth", body: "Recognise Avent customers browsing Hue.com or Philips.com and trigger relevant category recommendations.", color: T.accent },
-              { icon: <Shield size={20} />, title: "Churn Suppression", body: "Identify at-risk customers before they lapse and suppress from acquisition campaigns to protect budget.", color: "#F59E0B" },
-              { icon: <Globe size={20} />, title: "Global Audience Portability", body: "Build audiences once, deploy consistently across DE, NL, UK, and US markets via Oracle and Salesforce.", color: "#8B5CF6" },
-              { icon: <Heart size={20} />, title: "Post-Purchase Loyalty", body: "Trigger personalised accessory and spare-parts campaigns based on purchase history and time-since-buy.", color: "#EC4899" },
-            ].map(uc => (
-              <GlassCard key={uc.title} style={{ padding: "24px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-                  <div style={{
-                    width: 36, height: 36, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
-                    background: `${uc.color}15`, color: uc.color,
-                  }}>
-                    {uc.icon}
-                  </div>
-                  <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, letterSpacing: "-0.01em" }}>{uc.title}</h3>
-                </div>
-                <p style={{ fontSize: 14, color: T.muted, lineHeight: 1.7, margin: 0 }}>{uc.body}</p>
-              </GlassCard>
-            ))}
-          </motion.div>
-        </Section>
-      </section>
+            {/* Orbiting ring */}
+            <motion.div style={{
+              position:"absolute", top:"50%", left:"50%", width:500, height:500,
+              borderRadius:"50%", border:`1px solid rgba(43,91,255,0.08)`,
+              transform:"translate(-50%,-50%)",
+            }} animate={{ rotate:360 }} transition={{ duration:40, repeat:Infinity, ease:"linear" }}/>
+            <motion.div style={{
+              position:"absolute", top:"50%", left:"50%", width:360, height:360,
+              borderRadius:"50%", border:`1px solid rgba(11,94,215,0.07)`,
+              transform:"translate(-50%,-50%)",
+            }} animate={{ rotate:-360 }} transition={{ duration:28, repeat:Infinity, ease:"linear" }}/>
 
-      {/* ═══════════ 6. STATS ═══════════ */}
-      <section id="results" style={{ position: "relative", background: T.bgAlt, borderTop: `1px solid ${T.border}`, borderBottom: `1px solid ${T.border}` }}>
-        <Section>
-          <motion.div variants={fadeUp} style={{ textAlign: "center", marginBottom: 56 }}>
-            <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", color: T.accent, marginBottom: 16, display: "block" }}>
-              Proven Results
-            </span>
-            <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.15, margin: 0 }}>
-              What Zeotap customers <GradientText>achieve</GradientText>
-            </h2>
-          </motion.div>
-
-          <motion.div variants={stagger} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24 }}>
-            {[
-              { value: 37, prefix: "+", suffix: "%", label: "Conversion uplift", sub: "VMO2 — paid media campaigns", color: T.philips },
-              { value: 2.5, prefix: "+", suffix: "×", label: "Match rate improvement", sub: "Douglas — audience activation", color: T.zeotap },
-              { value: 1, prefix: "£", suffix: "M", label: "Saved in suppression", sub: "VMO2 — eliminating wasted spend", color: T.accent },
-            ].map(s => (
-              <GlassCard key={s.label} style={{ textAlign: "center", padding: "40px 24px" }}>
-                <div style={{
-                  position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
-                  width: 80, height: 2,
-                  background: `linear-gradient(90deg, transparent, ${s.color}, transparent)`,
-                }} />
-                <div style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)", fontWeight: 900, letterSpacing: "-0.04em", color: s.color, lineHeight: 1 }}>
-                  <Counter end={s.value} prefix={s.prefix} suffix={s.suffix} />
-                </div>
-                <div style={{ fontSize: 16, fontWeight: 600, marginTop: 12, letterSpacing: "-0.01em" }}>{s.label}</div>
-                <div style={{ fontSize: 13, color: T.muted, marginTop: 6 }}>{s.sub}</div>
-              </GlassCard>
-            ))}
-          </motion.div>
-
-          {/* Douglas case study callout */}
-          <motion.div variants={fadeUp} style={{ marginTop: 48 }}>
-            <GlassCard hover={false} style={{ padding: "32px", display: "grid", gridTemplateColumns: "1fr auto", gap: 32, alignItems: "center" }}>
-              <div>
-                <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: T.accent, marginBottom: 10 }}>Case Study</div>
-                <h3 style={{ fontSize: 20, fontWeight: 700, margin: "0 0 12px", letterSpacing: "-0.02em" }}>
-                  Douglas: Turning First-Party Data into Revenue
-                </h3>
-                <p style={{ fontSize: 14, color: T.muted, lineHeight: 1.7, margin: 0 }}>
-                  Europe's leading beauty retailer faced fragmented data across online and in-store channels — a challenge that closely mirrors Philips Personal Health's D2C ambition. With Zeotap, Douglas achieved <strong style={{ color: T.text }}>2.5× match rates</strong> and <strong style={{ color: T.text }}>+13% conversions</strong> in just 8 weeks.
-                </p>
-              </div>
-              <div style={{
-                width: 120, height: 120, borderRadius: 16, display: "flex", flexDirection: "column",
-                alignItems: "center", justifyContent: "center",
-                background: `linear-gradient(135deg, ${T.philips}20, ${T.zeotap}20)`,
-                border: `1px solid ${T.zeotap}30`,
-              }}>
-                <div style={{ fontSize: 28, fontWeight: 900, color: T.accent }}>8</div>
-                <div style={{ fontSize: 11, color: T.muted, textAlign: "center" }}>weeks to<br />first use case</div>
-              </div>
-            </GlassCard>
-          </motion.div>
-        </Section>
-      </section>
-
-      {/* ═══════════ 7. VISION ═══════════ */}
-      <section style={{ position: "relative", overflow: "hidden" }}>
-        <Particles count={30} />
-        <Section>
-          <motion.div variants={fadeUp} style={{ textAlign: "center", maxWidth: 780, margin: "0 auto" }}>
-            <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", color: T.accent, marginBottom: 16, display: "block" }}>
-              The Vision
-            </span>
-            <h2 style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.12, margin: "0 0 28px" }}>
-              Imagine a world where{" "}
-              <GradientText>every Philips customer is known, consented, and reachable</GradientText>
-              {" "}— everywhere.
-            </h2>
-            <p style={{ fontSize: 17, color: T.muted, lineHeight: 1.75, maxWidth: 640, margin: "0 auto" }}>
-              A parent buying Avent in the Netherlands gets a personalised Hue offer in the UK. A Lumea subscriber receives the right accessory at the right time. A HealthSuite user never sees a paid ad for a product they already own. This isn't hypothetical — it's what Zeotap CDP makes possible, today.
-            </p>
-          </motion.div>
-
-          {/* Vision pillars */}
-          <motion.div variants={stagger} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginTop: 56 }}>
-            {[
-              { num: "01", title: "One Profile", desc: "Across every product, market, and channel" },
-              { num: "02", title: "Full Consent", desc: "Governed, auditable, regulation-ready" },
-              { num: "03", title: "Instant Activation", desc: "150+ connectors, real-time audiences" },
-              { num: "04", title: "Measurable ROI", desc: "From day one — not month six" },
-            ].map(v => (
-              <motion.div key={v.num} variants={fadeUp} style={{ padding: "24px 20px", textAlign: "center" }}>
-                <div style={{
-                  fontSize: 32, fontWeight: 900, letterSpacing: "-0.04em",
-                  background: `linear-gradient(135deg, ${T.philips}40, ${T.zeotap}40)`,
-                  WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-                  marginBottom: 8,
+            {/* Content */}
+            <div style={{ position:"relative", zIndex:10, textAlign:"center", maxWidth:920, padding:"0 24px" }}>
+              {/* Badge */}
+              <motion.div initial={{ opacity:0, y:24 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.7 }}
+                style={{
+                  display:"inline-flex", alignItems:"center", gap:8,
+                  padding:"7px 18px", borderRadius:999,
+                  background:"rgba(43,91,255,0.10)", border:`1px solid rgba(43,91,255,0.22)`,
+                  fontSize:12, fontWeight:600, color:T.accent, marginBottom:36, letterSpacing:"0.03em",
                 }}>
-                  {v.num}
-                </div>
-                <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>{v.title}</div>
-                <div style={{ fontSize: 13, color: T.muted, lineHeight: 1.5 }}>{v.desc}</div>
+                ✦ Innovation and You — Powered by Intelligent Data ✦
               </motion.div>
-            ))}
-          </motion.div>
-        </Section>
-      </section>
 
-      {/* ═══════════ 8. CTA / CLOSING ═══════════ */}
-      <section style={{
-        position: "relative", overflow: "hidden",
-        background: `linear-gradient(180deg, ${T.bg} 0%, ${T.bgAlt} 50%, ${T.bg} 100%)`,
-        borderTop: `1px solid ${T.border}`,
-      }}>
-        {/* Large glow */}
-        <div style={{
-          position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
-          width: 600, height: 400, borderRadius: "50%",
-          background: `radial-gradient(circle, ${T.zeotap}12 0%, transparent 70%)`,
-          filter: "blur(60px)",
-        }} />
+              {/* H1 */}
+              <motion.h1 initial={{ opacity:0, y:50 }} animate={{ opacity:1, y:0 }} transition={{ duration:1, delay:0.2, ease:[0.25,0.1,0.25,1] }}
+                style={{ fontSize:"clamp(2.6rem, 6.5vw, 4.8rem)", fontWeight:900, lineHeight:1.07, letterSpacing:"-0.045em", margin:"0 0 8px" }}>
+                When <GT>health technology</GT>
+              </motion.h1>
+              <motion.h1 initial={{ opacity:0, y:50 }} animate={{ opacity:1, y:0 }} transition={{ duration:1, delay:0.35, ease:[0.25,0.1,0.25,1] }}
+                style={{ fontSize:"clamp(2.6rem, 6.5vw, 4.8rem)", fontWeight:900, lineHeight:1.07, letterSpacing:"-0.045em", margin:"0 0 32px" }}>
+                meets <GT>intelligent data</GT>
+              </motion.h1>
 
-        <Section style={{ textAlign: "center" }}>
-          <motion.div variants={fadeUp}>
-            <h2 style={{ fontSize: "clamp(2.2rem, 5vw, 3.5rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.12, margin: "0 0 20px" }}>
-              Ready to <GradientText>unify</GradientText> Philips customer data?
-            </h2>
-            <p style={{ fontSize: 17, color: T.muted, maxWidth: 500, margin: "0 auto 40px", lineHeight: 1.7 }}>
-              Three steps to live audiences and measurable results.
-            </p>
-          </motion.div>
+              {/* Subtitle */}
+              <motion.p initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.8, delay:0.55 }}
+                style={{ fontSize:"clamp(1rem, 2.2vw, 1.22rem)", color:T.muted, maxWidth:660, margin:"0 auto 44px", lineHeight:1.78 }}>
+                Zeotap CDP is the missing intelligence layer that unifies Philips customer data across every market, product, and channel — turning fragmented profiles into consented, actionable audiences.
+              </motion.p>
 
-          <motion.div variants={stagger} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 20, maxWidth: 900, margin: "0 auto" }}>
-            {[
-              { step: "01", title: "Discovery Call", body: "30-min deep dive into your architecture, activation goals, and Oracle/Salesforce integration points.", icon: <Users size={20} /> },
-              { step: "02", title: "Use Case Workshop", body: "Map 2–3 high-priority Philips use cases to Zeotap capabilities and define success metrics.", icon: <Target size={20} /> },
-              { step: "03", title: "Proof of Value", body: "8-week POV on a live use case — typically paid media suppression or D2C audience activation.", icon: <Zap size={20} /> },
-            ].map(s => (
-              <GlassCard key={s.step}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-                  <div style={{
-                    width: 36, height: 36, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
-                    background: `${T.zeotap}15`, color: T.accent,
+              {/* CTAs */}
+              <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.6, delay:0.8 }}
+                style={{ display:"flex", gap:14, justifyContent:"center", flexWrap:"wrap" }}>
+                <motion.a href="#challenge" whileHover={{ scale:1.04 }} whileTap={{ scale:0.97 }}
+                  style={{
+                    background:`linear-gradient(135deg, ${T.philips}, ${T.zeotap})`,
+                    color:"white", borderRadius:13, padding:"15px 34px",
+                    fontSize:15, fontWeight:700, display:"inline-flex", alignItems:"center", gap:8,
+                    boxShadow:`0 0 32px rgba(43,91,255,0.35)`, cursor:"pointer",
                   }}>
-                    {s.icon}
+                  Explore the Vision →
+                </motion.a>
+                <motion.a href="#platform" whileHover={{ scale:1.04, background:"rgba(255,255,255,0.09)" }} whileTap={{ scale:0.97 }}
+                  style={{
+                    background:"rgba(255,255,255,0.05)", color:T.text,
+                    border:`1px solid rgba(255,255,255,0.13)`, borderRadius:13,
+                    padding:"15px 34px", fontSize:15, fontWeight:500, cursor:"pointer",
+                  }}>
+                  See the Platform
+                </motion.a>
+              </motion.div>
+
+              {/* Logos */}
+              <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:1.3, duration:0.9 }}
+                style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:24, marginTop:64 }}>
+                <span style={{ fontWeight:900, fontSize:20, letterSpacing:"0.04em", color:T.text }}>PHILIPS</span>
+                <div style={{ width:1, height:22, background:T.border }}/>
+                <span style={{ fontWeight:900, fontSize:20, color:T.zeotap }}>zeotap</span>
+              </motion.div>
+            </div>
+
+            {/* Scroll cue */}
+            <motion.div animate={{ y:[0,9,0] }} transition={{ duration:2.2, repeat:Infinity }}
+              style={{ position:"absolute", bottom:38, left:"50%", transform:"translateX(-50%)", display:"flex", flexDirection:"column", alignItems:"center", gap:8 }}>
+              <span style={{ fontSize:10, color:T.muted, letterSpacing:"0.14em", textTransform:"uppercase" }}>Scroll</span>
+              <div style={{ width:1, height:22, background:`linear-gradient(to bottom, ${T.muted}80, transparent)` }}/>
+            </motion.div>
+          </section>
+
+          {/* ══════════ CHALLENGE ══════════ */}
+          <section id="challenge" style={{ background:T.bgAlt, borderTop:`1px solid ${T.border}`, borderBottom:`1px solid ${T.border}`, position:"relative" }}>
+            <Section>
+              <motion.div variants={fadeUp} style={{ textAlign:"center", maxWidth:800, margin:"0 auto" }}>
+                <Eyebrow>The Challenge</Eyebrow>
+                <h2 style={{ fontSize:"clamp(2rem,4.5vw,3.1rem)", fontWeight:800, letterSpacing:"-0.035em", lineHeight:1.14, margin:"0 0 24px" }}>
+                  Powerful tools.{" "}
+                  <span style={{ color:T.muted }}>Fragmented data.</span>{" "}
+                  Missed opportunities.
+                </h2>
+                <p style={{ fontSize:17, color:T.muted, lineHeight:1.78 }}>
+                  Philips runs <strong style={{ color:T.text }}>Oracle Eloqua</strong>, <strong style={{ color:T.text }}>Salesforce Marketing Cloud</strong>, and <strong style={{ color:T.text }}>AWS</strong> across 100+ markets — yet customer profiles remain siloed by product line, region, and channel. Without a unified identity layer, match rates suffer, suppression breaks down, and personalisation at scale stays out of reach.
+                </p>
+              </motion.div>
+
+              {/* Convergence diagram */}
+              <motion.div variants={fadeUp} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:16, marginTop:56, flexWrap:"wrap" }}>
+                {["Oracle Eloqua","Salesforce MC","AWS"].map((t,i)=>(
+                  <motion.div key={t}
+                    initial={{ opacity:0, x:(i-1)*60 }}
+                    whileInView={{ opacity:1, x:0 }}
+                    viewport={{ once:true }}
+                    transition={{ delay:i*0.15, duration:0.6 }}
+                    style={{ padding:"14px 26px", borderRadius:11, background:"rgba(255,255,255,0.03)", border:`1px solid ${T.border}`, fontSize:14, fontWeight:600, color:T.muted }}>
+                    {t}
+                  </motion.div>
+                ))}
+                <motion.span initial={{ scale:0 }} whileInView={{ scale:1 }} viewport={{ once:true }} transition={{ delay:0.55, type:"spring" }}
+                  style={{ fontSize:20, color:T.accent }}>→</motion.span>
+                <motion.div initial={{ opacity:0, scale:0.75 }} whileInView={{ opacity:1, scale:1 }} viewport={{ once:true }} transition={{ delay:0.75, type:"spring", stiffness:200 }}
+                  style={{
+                    padding:"14px 26px", borderRadius:11,
+                    background:`linear-gradient(135deg, ${T.philips}18, ${T.zeotap}18)`,
+                    border:`1px solid ${T.zeotap}50`,
+                    fontSize:14, fontWeight:800, color:T.accent,
+                    boxShadow:`0 0 40px ${T.zeotap}15`,
+                  }}>
+                  Zeotap CDP
+                </motion.div>
+              </motion.div>
+
+              {/* Pain cards */}
+              <motion.div variants={stagger} style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(220px,1fr))", gap:14, marginTop:44 }}>
+                {[
+                  { label:"Siloed Profiles", desc:"Customers unknown across products and brands" },
+                  { label:"Low Match Rates", desc:"Audiences lost before paid media activation" },
+                  { label:"Broken Suppression", desc:"Budget wasted reaching existing customers" },
+                  { label:"Consent Gaps", desc:"Governance varies by market, creating risk" },
+                ].map(p=>(
+                  <motion.div key={p.label} variants={fadeUp}
+                    style={{ padding:"20px", borderRadius:12, background:"rgba(255,255,255,0.025)", border:`1px solid ${T.border}`, textAlign:"center" }}>
+                    <div style={{ fontSize:14, fontWeight:700, color:T.text, marginBottom:5 }}>{p.label}</div>
+                    <div style={{ fontSize:13, color:T.muted, lineHeight:1.55 }}>{p.desc}</div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </Section>
+          </section>
+
+          {/* ══════════ PLATFORM ══════════ */}
+          <section id="platform" style={{ position:"relative" }}>
+            <Section>
+              <motion.div variants={fadeUp} style={{ textAlign:"center", marginBottom:52 }}>
+                <Eyebrow>The Platform</Eyebrow>
+                <h2 style={{ fontSize:"clamp(2rem,4.5vw,3.1rem)", fontWeight:800, letterSpacing:"-0.035em", lineHeight:1.14, margin:0 }}>
+                  Built to <GT>Unify</GT>, <GT>Govern</GT>, and <GT>Activate</GT>
+                </h2>
+              </motion.div>
+
+              <motion.div variants={stagger} style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(290px,1fr))", gap:22 }}>
+                {[
+                  { icon:"⬡", title:"Unify", color:T.philips, body:"Resolve identities across every Philips touchpoint — Philips.com, regional shops, Avent, Hue, and support — into one privacy-safe customer profile that travels with the customer." },
+                  { icon:"⬡", title:"Govern", color:T.zeotap, body:"Consent management and data governance built-in. Stay compliant across all 100+ Philips markets without slowing down activation or adding overhead." },
+                  { icon:"⬡", title:"Activate", color:T.accent, body:"Push enriched audiences directly into Oracle, Salesforce, AWS, and 150+ connectors — no rip-and-replace, just better performance in every system you already own." },
+                ].map(c=>(
+                  <GlassCard key={c.title}>
+                    <div style={{ position:"absolute", top:0, left:0, right:0, height:2, background:`linear-gradient(90deg, transparent, ${c.color}, transparent)` }}/>
+                    <div style={{
+                      width:48, height:48, borderRadius:13, display:"flex", alignItems:"center", justifyContent:"center",
+                      background:`${c.color}14`, color:c.color, fontSize:22, marginBottom:20,
+                    }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        {c.title==="Unify" && <><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12c0 4 4.5 7.4 10 7.4s10-3.4 10-7.4"/><path d="M2 12c0-4 4.5-7.4 10-7.4s10 3.4 10 7.4"/></>}
+                        {c.title==="Govern" && <><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></>}
+                        {c.title==="Activate" && <><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></>}
+                      </svg>
+                    </div>
+                    <h3 style={{ fontSize:22, fontWeight:800, margin:"0 0 12px", letterSpacing:"-0.025em" }}>{c.title}</h3>
+                    <p style={{ fontSize:15, color:T.muted, lineHeight:1.74, margin:0 }}>{c.body}</p>
+                  </GlassCard>
+                ))}
+              </motion.div>
+
+              {/* Stack diagram */}
+              <motion.div variants={fadeUp} style={{ marginTop:60 }}>
+                <GlassCard noHover style={{ padding:"40px 32px" }}>
+                  <div style={{ textAlign:"center", marginBottom:36 }}>
+                    <Eyebrow>Stack Integration</Eyebrow>
+                    <h3 style={{ fontSize:"clamp(1.5rem,3vw,2rem)", fontWeight:800, letterSpacing:"-0.03em", margin:0 }}>
+                      Selective Modernisation — <span style={{ color:T.muted }}>Not Rip-and-Replace</span>
+                    </h3>
                   </div>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: T.muted, letterSpacing: "0.1em" }}>STEP {s.step}</span>
-                </div>
-                <h3 style={{ fontSize: 18, fontWeight: 700, margin: "0 0 10px", letterSpacing: "-0.02em" }}>{s.title}</h3>
-                <p style={{ fontSize: 14, color: T.muted, lineHeight: 1.7, margin: 0 }}>{s.body}</p>
-              </GlassCard>
-            ))}
-          </motion.div>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr auto 1fr", gap:24, alignItems:"center" }}>
+                    {/* Sources */}
+                    <div style={{ display:"flex", flexDirection:"column", gap:10, alignItems:"flex-end" }}>
+                      {["Philips.com","Avent Store","Hue.com","HealthSuite","Support Portal"].map((s,i)=>(
+                        <motion.div key={s} initial={{ opacity:0, x:-40 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:i*0.08, duration:0.5 }}
+                          style={{ padding:"10px 18px", borderRadius:9, background:"rgba(255,255,255,0.03)", border:`1px solid ${T.border}`, fontSize:13, fontWeight:500, color:T.muted, whiteSpace:"nowrap" }}>
+                          {s}
+                        </motion.div>
+                      ))}
+                      <div style={{ fontSize:10, color:T.muted, letterSpacing:"0.12em", textTransform:"uppercase", marginTop:6 }}>Data Sources</div>
+                    </div>
 
-          <motion.div variants={fadeUp} style={{ marginTop: 48 }}>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.97 }}
-              style={{
-                background: `linear-gradient(135deg, ${T.philips}, ${T.zeotap})`,
-                color: "white", border: "none", borderRadius: 14, padding: "16px 40px",
-                fontSize: 16, fontWeight: 700, cursor: "pointer",
-                display: "inline-flex", alignItems: "center", gap: 10,
-                boxShadow: `0 0 40px ${T.zeotap}30, 0 0 80px ${T.zeotap}10`,
-              }}
-            >
-              Let's Talk <Send size={16} />
-            </motion.button>
-          </motion.div>
+                    {/* CDP hub */}
+                    <motion.div initial={{ opacity:0, scale:0.8 }} whileInView={{ opacity:1, scale:1 }} viewport={{ once:true }} transition={{ delay:0.45, type:"spring", stiffness:180 }}
+                      style={{
+                        padding:"28px 24px", borderRadius:18, textAlign:"center", minWidth:156,
+                        background:`linear-gradient(155deg, ${T.philips}16, ${T.zeotap}18)`,
+                        border:`1px solid ${T.zeotap}45`,
+                        boxShadow:`0 0 55px ${T.zeotap}13, inset 0 0 35px ${T.zeotap}04`,
+                      }}>
+                      <div style={{ fontSize:28, marginBottom:10 }}>⬡</div>
+                      <div style={{ fontSize:17, fontWeight:900, letterSpacing:"-0.025em" }}>Zeotap CDP</div>
+                      <div style={{ fontSize:11, color:T.muted, marginTop:10, lineHeight:1.65 }}>Identity Resolution<br/>Consent Layer<br/>Audience Engine</div>
+                    </motion.div>
 
-          {/* Footer */}
-          <motion.div variants={fadeIn} style={{ marginTop: 80, paddingTop: 32, borderTop: `1px solid ${T.border}`, display: "flex", alignItems: "center", justifyContent: "center", gap: 20 }}>
-            <span style={{ fontWeight: 700, fontSize: 16, color: T.muted }}>PHILIPS</span>
-            <div style={{ width: 1, height: 18, background: T.border }} />
-            <span style={{ fontWeight: 700, fontSize: 16, color: T.zeotap }}>zeotap</span>
-            <div style={{ width: 1, height: 18, background: T.border }} />
-            <span style={{ fontSize: 12, color: T.muted }}>zeotap.com</span>
-          </motion.div>
-        </Section>
-      </section>
-    </div>
-  );
-}
+                    {/* Channels */}
+                    <div style={{ display:"flex", flexDirection:"column", gap:10, alignItems:"flex-start" }}>
+                      {["Oracle Eloqua","Salesforce MC","Google Ads","Meta Ads","AWS Pinpoint"].map((s,i)=>(
+                        <motion.div key={s} initial={{ opacity:0, x:40 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:i*0.08+0.55, duration:0.5 }}
+                          style={{ padding:"10px 18px", borderRadius:9, background:"rgba(255,255,255,0.03)", border:`1px solid ${T.border}`, fontSize:13, fontWeight:500, color:T.muted, whiteSpace:"nowrap" }}>
+                          {s}
+                        </motion.div>
+                      ))}
+                      <div style={{ fontSize:10, color:T.muted, letterSpacing:"0.12em", textTransform:"uppercase", marginTop:6 }}>Activation Channels</div>
+                    </div>
+                  </div>
+                </GlassCard>
+              </motion.div>
+            </Section>
+          </section>
+
+          {/* ══════════ USE CASES ══════════ */}
+          <section id="usecases" style={{ background:T.bgAlt, borderTop:`1px solid ${T.border}`, borderBottom:`1px solid ${T.border}`, position:"relative" }}>
+            <Section>
+              <motion.div variants={fadeUp} style={{ textAlign:"center", marginBottom:52 }}>
+                <Eyebrow>Use Cases</Eyebrow>
+                <h2 style={{ fontSize:"clamp(2rem,4.5vw,3.1rem)", fontWeight:800, letterSpacing:"-0.035em", lineHeight:1.14, margin:0 }}>
+                  Six ways Zeotap transforms <GT>Philips Personal Health</GT>
+                </h2>
+              </motion.div>
+
+              <motion.div variants={stagger} style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(320px,1fr))", gap:20 }}>
+                {[
+                  { emoji:"🎯", title:"D2C Acquisition",          color:T.philips,  body:"Build lookalike audiences from Philips.com purchasers and activate across paid media at higher match rates and lower CPAs." },
+                  { emoji:"🔄", title:"Subscription Upsell",       color:T.zeotap,  body:"Identify Lumea Try & Buy customers most likely to convert to annual plans and trigger personalised outreach at the right moment." },
+                  { emoji:"🛒", title:"Cross-Category Growth",     color:T.accent,  body:"Recognise Avent customers browsing Hue.com or Philips.com and trigger relevant category recommendations automatically." },
+                  { emoji:"🛡️", title:"Churn Suppression",        color:"#F59E0B", body:"Identify at-risk customers before they lapse and suppress from acquisition campaigns to protect budget and reduce wasted spend." },
+                  { emoji:"🌍", title:"Global Audience Portability",color:"#8B5CF6",body:"Build audiences once, deploy consistently across DE, NL, UK, and US markets via Oracle and Salesforce — consented and governed." },
+                  { emoji:"💛", title:"Post-Purchase Loyalty",     color:"#EC4899", body:"Trigger personalised accessory and spare-parts campaigns based on product purchase history and time-since-buy signals." },
+                ].map(u=>(
+                  <GlassCard key={u.title} style={{ padding:"22px" }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:14 }}>
+                      <div style={{ width:38, height:38, borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", background:`${u.color}14`, fontSize:18 }}>{u.emoji}</div>
+                      <h3 style={{ fontSize:16, fontWeight:700, margin:0, letterSpacing:"-0.015em" }}>{u.title}</h3>
+                    </div>
+                    <p style={{ fontSize:14, color:T.muted, lineHeight:1.72, margin:0 }}>{u.body}</p>
+                    <div style={{ position:"absolute", bottom:0, left:0, right:0, height:2, background:`linear-gradient(90deg, transparent, ${u.color}40, transparent)`, borderRadius:"0 0 18px 18px" }}/>
+                  </GlassCard>
+                ))}
+              </motion.div>
+            </Section>
+          </section>
+
+          {/* ══════════ RESULTS ══════════ */}
+          <section id="results" style={{ position:"relative" }}>
+            <Section>
+              <motion.div variants={fadeUp} style={{ textAlign:"center", marginBottom:52 }}>
+                <Eyebrow>Proven Results</Eyebrow>
+                <h2 style={{ fontSize:"clamp(2rem,4.5vw,3.1rem)", fontWeight:800, letterSpacing:"-0.035em", lineHeight:1.14, margin:0 }}>
+                  What Zeotap customers <GT>achieve</GT>
+                </h2>
+              </motion.div>
+
+              {/* Stat cards */}
+              <motion.div variants={stagger} style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(270px,1fr))", gap:22 }}>
+                {[
+                  { value:37, prefix:"+", suffix:"%", label:"Conversion uplift",      sub:"VMO2 — paid media campaigns",     color:T.philips },
+                  { value:2.5, prefix:"+", suffix:"×", label:"Match rate improvement", sub:"Douglas — audience activation",   color:T.zeotap  },
+                  { value:1,   prefix:"£", suffix:"M", label:"Saved in suppression",   sub:"VMO2 — eliminating wasted spend", color:T.accent  },
+                ].map(s=>(
+                  <GlassCard key={s.label} style={{ textAlign:"center", padding:"44px 24px" }}>
+                    <div style={{ position:"absolute", top:0, left:"50%", transform:"translateX(-50%)", width:72, height:2, background:`linear-gradient(90deg, transparent, ${s.color}, transparent)` }}/>
+                    <div style={{ fontSize:"clamp(2.6rem,5vw,3.6rem)", fontWeight:900, letterSpacing:"-0.045em", color:s.color, lineHeight:1, marginBottom:12 }}>
+                      <Counter end={s.value} prefix={s.prefix} suffix={s.suffix}/>
+                    </div>
+                    <div style={{ fontSize:16, fontWeight:700, letterSpacing:"-0.01em", marginBottom:6 }}>{s.label}</div>
+                    <div style={{ fontSize:13, color:T.muted }}>{s.sub}</div>
+                  </GlassCard>
+                ))}
+              </motion.div>
+
+              {/* Case study */}
+              <motion.div variants={fadeUp} style={{ marginTop:44 }}>
+                <GlassCard noHover style={{ padding:"32px 36px" }}>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr auto", gap:32, alignItems:"center" }}>
+                    <div>
+                      <div style={{ fontSize:11, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:T.accent, marginBottom:12 }}>Case Study — Closest Analogue to Philips</div>
+                      <h3 style={{ fontSize:22, fontWeight:800, margin:"0 0 14px", letterSpacing:"-0.025em" }}>Douglas: Turning First-Party Data into Revenue</h3>
+                      <p style={{ fontSize:15, color:T.muted, lineHeight:1.74, margin:0 }}>Europe's leading beauty retailer faced fragmented data across online and in-store — a challenge closely mirrored by Philips Personal Health's D2C ambition. With Zeotap, Douglas achieved <strong style={{ color:T.text }}>+2.5× match rates</strong> and <strong style={{ color:T.text }}>+13% conversions</strong> in just 8 weeks to first live use case.</p>
+                    </div>
+                    <div style={{
+                      minWidth:110, minHeight:110, borderRadius:16, display:"flex", flexDirection:"column",
+                      alignItems:"center", justifyContent:"center", textAlign:"center",
+                      background:`linear-gradient(135deg, ${T.philips}18, ${T.zeotap}18)`,
+                      border:`1px solid ${T.zeotap}35`,
+                      padding:"16px",
+                    }}>
+                      <div style={{ fontSize:30, fontWeight:900, color:T.accent, lineHeight:1 }}>8</div>
+                      <div style={{ fontSize:11, color:T.muted, marginTop:6, lineHeight:1.4 }}>weeks to<br/>first use case</div>
+                    </div>
+                  </div>
+                </GlassCard>
+              </motion.div>
+            </Section>
+          </section>
+
+          {/* ══════════ VISION ══════════ */}
+          <section style={{ position:"relative", background:T.bgAlt, borderTop:`1px solid ${T.border}`, borderBottom:`1px solid ${T.border}`, overflow:"hidden" }}>
+            <Particles count={25}/>
+            <Section>
+              <motion.div variants={fadeUp} style={{ textAlign:"center", maxWidth:820, margin:"0 auto" }}>
+                <Eyebrow>The Vision</Eyebrow>
+                <h2 style={{ fontSize:"clamp(2rem,4.8vw,3.4rem)", fontWeight:900, letterSpacing:"-0.04em", lineHeight:1.1, margin:"0 0 28px" }}>
+                  Imagine a world where every Philips customer is{" "}
+                  <GT>known, consented, and reachable</GT>
+                  {" "}— everywhere.
+                </h2>
+                <p style={{ fontSize:17, color:T.muted, lineHeight:1.78, maxWidth:660, margin:"0 auto" }}>
+                  A parent buying Avent in the Netherlands gets a personalised Hue offer in the UK. A Lumea subscriber receives the right accessory at the right time. A HealthSuite user never sees an ad for a product they already own. This isn't hypothetical — it's what Zeotap CDP makes possible, today.
+                </p>
+              </motion.div>
+
+              <motion.div variants={stagger} style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))", gap:16, marginTop:56 }}>
+                {[
+                  { num:"01", title:"One Profile",       desc:"Across every product, market, and channel" },
+                  { num:"02", title:"Full Consent",       desc:"Governed, auditable, regulation-ready" },
+                  { num:"03", title:"Instant Activation", desc:"150+ connectors, real-time audiences" },
+                  { num:"04", title:"Measurable ROI",     desc:"From day one — not month six" },
+                ].map(v=>(
+                  <motion.div key={v.num} variants={fadeUp} style={{ padding:"28px 20px", textAlign:"center" }}>
+                    <div style={{
+                      fontSize:36, fontWeight:900, letterSpacing:"-0.05em", lineHeight:1,
+                      background:`linear-gradient(135deg, ${T.philips}55, ${T.zeotap}55)`,
+                      WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent",
+                      marginBottom:10,
+                    }}>{v.num}</div>
+                    <div style={{ fontSize:16, fontWeight:700, marginBottom:7 }}>{v.title}</div>
+                    <div style={{ fontSize:13, color:T.muted, lineHeight:1.55 }}>{v.desc}</div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </Section>
+          </section>
+
+          {/* ══════════ CTA ══════════ */}
+          <section style={{ position:"relative", overflow:"hidden" }}>
+            <div style={{
+              position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)",
+              width:700, height:500, borderRadius:"50%",
+              background:`radial-gradient(circle, ${T.zeotap}10 0%, transparent 68%)`,
+              filter:"blur(70px)", pointerEvents:"none",
+            }}/>
+            <Particles count={20}/>
+
+            <Section style={{ textAlign:"center" }}>
+              <motion.div variants={fadeUp}>
+                <Eyebrow>Next Steps</Eyebrow>
+                <h2 style={{ fontSize:"clamp(2.2rem,5vw,3.6rem)", fontWeight:900, letterSpacing:"-0.045em", lineHeight:1.1, margin:"0 0 20px" }}>
+                  Ready to <GT>unify</GT> Philips<br/>customer data?
+                </h2>
+                <p style={{ fontSize:17, color:T.muted, maxWidth:480, margin:"0 auto 44px", lineHeight:1.72 }}>
+                  Three steps to live audiences and measurable results.
+                </p>
+              </motion.div>
+
+              <motion.div variants={stagger} style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))", gap:20, maxWidth:920, margin:"0 auto" }}>
+                {[
+                  { step:"01", emoji:"📞", title:"Discovery Call",     body:"30-min deep dive into your data architecture, activation goals, and Oracle/Salesforce integration points." },
+                  { step:"02", emoji:"🗺️", title:"Use Case Workshop",  body:"Map 2–3 high-priority Philips use cases to Zeotap capabilities and define clear success metrics together." },
+                  { step:"03", emoji:"⚡", title:"Proof of Value",      body:"8-week POV on a live use case — typically paid media suppression or D2C audience activation." },
+                ].map(s=>(
+                  <GlassCard key={s.step}>
+                    <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:16 }}>
+                      <span style={{ fontSize:22 }}>{s.emoji}</span>
+                      <span style={{ fontSize:11, fontWeight:700, color:T.muted, letterSpacing:"0.12em", textTransform:"uppercase" }}>Step {s.step}</span>
+                    </div>
+                    <h3 style={{ fontSize:19, fontWeight:800, margin:"0 0 10px", letterSpacing:"-0.02em" }}>{s.title}</h3>
+                    <p style={{ fontSize:14, color:T.muted, lineHeight:1.72, margin:0 }}>{s.body}</p>
+                  </GlassCard>
+                ))}
+              </motion.div>
+
+              <motion.div variants={fadeUp} style={{ marginTop:48 }}>
+                <motion.button whileHover={{ scale:1.05 }} whileTap={{ scale:0.97 }}
+                  style={{
+                    background:`linear-gradient(135deg, ${T.philips}, ${T.zeotap})`,
+                    color:"white", border:"none", borderRadius:14, padding:"17px 44px",
+                    fontSize:16, fontWeight:800, cursor:"pointer",
+                    display:"inline-flex", alignItems:"center", gap:10,
+                    boxShadow:`0 0 45px ${T.zeotap}32, 0 0 90px ${T.zeotap}0D`,
+                  }}>
+                  Let's Talk →
+                </motion.button>
+              </motion.div>
+
+              {/* Footer */}
+              <motion.div variants={fadeUp} style={{ marginTop:80, paddingTop:32, borderTop:`1px solid ${T.border}`, display:"flex", alignItems:"center", justifyContent:"center", gap:24, flexWrap:"wrap" }}>
+                <span style={{ fontWeight:900, fontSize:16, letterSpacing:"0.04em", color:T.muted }}>PHILIPS</span>
+                <div style={{ width:1, height:18, background:T.border }}/>
+                <span style={{ fontWeight:900, fontSize:16, color:T.zeotap }}>zeotap</span>
+                <div style={{ width:1, height:18, background:T.border }}/>
+                <span style={{ fontSize:12, color:T.muted }}>zeotap.com</span>
+                <div style={{ width:1, height:18, background:T.border }}/>
+                <span style={{ fontSize:12, color:T.muted }}>© 2025 Zeotap GmbH</span>
+              </motion.div>
+            </Section>
+          </section>
+
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+  </script>
+</body>
+</html>
