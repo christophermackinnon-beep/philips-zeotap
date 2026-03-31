@@ -1,654 +1,530 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Philips × Zeotap — Innovation and You, Powered by Intelligent Data</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { background: #06080F; color: #E2E8F0; font-family: -apple-system, 'Inter', 'Segoe UI', sans-serif; overflow-x: hidden; }
-    ::selection { background: rgba(43,91,255,0.3); }
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #06080F; }
-    ::-webkit-scrollbar-thumb { background: rgba(43,91,255,0.4); border-radius: 3px; }
-    a { color: inherit; text-decoration: none; }
-    button { font-family: inherit; }
-    @keyframes pulse-glow { 0%,100%{opacity:.4} 50%{opacity:.8} }
-    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
-    @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
-    .shimmer {
-      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
-      background-size: 200% 100%;
-      animation: shimmer 3s infinite;
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Philips × Zeotap — Powered by Intelligent Data</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:#06080F;color:#E2E8F0;font-family:'Inter',sans-serif;overflow-x:hidden}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#06080F}::-webkit-scrollbar-thumb{background:rgba(43,91,255,.4);border-radius:3px}
+a{color:inherit;text-decoration:none}
+::selection{background:rgba(43,91,255,.3)}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes spin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes spinR{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(-360deg)}}
+@keyframes beam{0%,100%{opacity:.15}50%{opacity:.6}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes pf0{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+@keyframes pf1{0%,100%{transform:translateY(0) translateX(0)}50%{transform:translateY(-15px) translateX(7px)}}
+@keyframes pf2{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-12px) scale(1.25)}}
+@keyframes glow{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:.7;transform:scale(1.08)}}
+@keyframes scrollDot{0%,100%{opacity:0;top:6px}40%{opacity:1}80%{opacity:.2;top:18px}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+
+/* REVEAL */
+.rv{opacity:0;transform:translateY(32px);transition:opacity .7s cubic-bezier(.25,.1,.25,1),transform .7s cubic-bezier(.25,.1,.25,1)}
+.rv.on{opacity:1;transform:none}
+.rs{opacity:0;transform:scale(.93);transition:opacity .6s ease-out,transform .6s ease-out}
+.rs.on{opacity:1;transform:none}
+.d1{transition-delay:.05s}.d2{transition-delay:.12s}.d3{transition-delay:.2s}
+.d4{transition-delay:.28s}.d5{transition-delay:.36s}.d6{transition-delay:.44s}
+
+/* GRADIENT TEXT */
+.gt{background:linear-gradient(125deg,#0B5ED7,#2B5BFF 50%,#22D3EE);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(6,8,15,0);border-bottom:1px solid rgba(255,255,255,0);backdrop-filter:blur(14px);transition:background .4s,border-color .4s}
+nav.sc{background:rgba(6,8,15,.92);border-color:rgba(255,255,255,.07)}
+.ni{max-width:1180px;margin:0 auto;padding:13px 24px;display:flex;align-items:center;justify-content:space-between}
+.nb{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:800;letter-spacing:-.02em}
+.nd{width:7px;height:7px;border-radius:50%;background:#0B5ED7;display:inline-block}
+.nl{display:flex;gap:28px;font-size:13px}
+.nl a{color:#64748B;transition:color .2s}.nl a:hover{color:#E2E8F0}
+
+/* HERO */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.hbg{position:absolute;inset:0;background:radial-gradient(ellipse 90% 70% at 15% 0%,rgba(11,94,215,.22) 0%,transparent 55%),radial-gradient(ellipse 70% 60% at 85% 20%,rgba(43,91,255,.17) 0%,transparent 55%),radial-gradient(ellipse 55% 45% at 50% 90%,rgba(34,211,238,.11) 0%,transparent 60%)}
+.hgrid{position:absolute;inset:0;opacity:.07;pointer-events:none;background-image:linear-gradient(#64748B 1px,transparent 1px),linear-gradient(90deg,#64748B 1px,transparent 1px);background-size:64px 64px;-webkit-mask-image:radial-gradient(ellipse 80% 55% at 50% 20%,black 30%,transparent 100%);mask-image:radial-gradient(ellipse 80% 55% at 50% 20%,black 30%,transparent 100%)}
+.hbeam{position:absolute;top:0;left:calc(50% - .5px);width:1px;height:45%;background:linear-gradient(to bottom,transparent,rgba(43,91,255,.55),transparent);animation:beam 3.5s ease-in-out infinite}
+.ring{position:absolute;top:50%;left:50%;border-radius:50%;pointer-events:none}
+.r1{width:500px;height:500px;border:1px solid rgba(43,91,255,.08);animation:spin 40s linear infinite}
+.r2{width:360px;height:360px;border:1px solid rgba(11,94,215,.06);animation:spinR 28s linear infinite}
+#pts{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.hc{position:relative;z-index:10;text-align:center;max-width:920px;padding:0 24px}
+.hbadge{display:inline-flex;align-items:center;gap:8px;margin-bottom:36px;padding:7px 18px;border-radius:999px;background:rgba(43,91,255,.1);border:1px solid rgba(43,91,255,.22);font-size:12px;font-weight:600;color:#22D3EE;letter-spacing:.03em;animation:fadeUp .7s ease-out both}
+.hero h1{font-size:clamp(2.6rem,6.5vw,4.8rem);font-weight:900;line-height:1.07;letter-spacing:-.045em}
+.hl1{margin-bottom:8px;animation:fadeUp 1s ease-out .2s both}
+.hl2{margin-bottom:32px;animation:fadeUp 1s ease-out .35s both}
+.hsub{font-size:clamp(1rem,2.2vw,1.2rem);color:#64748B;max-width:660px;margin:0 auto 44px;line-height:1.78;animation:fadeUp .8s ease-out .55s both}
+.hctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:fadeUp .6s ease-out .8s both}
+.scrollhint{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;font-size:11px;color:#64748B;letter-spacing:.1em;text-transform:uppercase;animation:fadeIn 1s 1.4s both}
+.mouse{width:20px;height:32px;border:1.5px solid rgba(100,116,139,.4);border-radius:10px;position:relative;overflow:hidden}
+.mouse::after{content:'';position:absolute;left:50%;top:6px;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:#64748B;animation:scrollDot 2s ease-in-out infinite}
+
+/* BUTTONS */
+.bp{display:inline-block;padding:14px 32px;border-radius:10px;font-size:14px;font-weight:600;background:linear-gradient(135deg,#0B5ED7,#2B5BFF);color:#fff;box-shadow:0 0 28px rgba(43,91,255,.35);transition:transform .2s,box-shadow .2s}
+.bp:hover{transform:translateY(-2px);box-shadow:0 0 44px rgba(43,91,255,.55)}
+.bs{display:inline-block;padding:14px 32px;border-radius:10px;font-size:14px;font-weight:600;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#E2E8F0;transition:background .2s,transform .2s}
+.bs:hover{background:rgba(255,255,255,.1);transform:translateY(-2px)}
+
+/* LAYOUT */
+.sw{max-width:1180px;margin:0 auto;padding:96px 24px;position:relative}
+.ew{display:inline-flex;align-items:center;gap:6px;margin-bottom:18px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#22D3EE}
+.ew::before,.ew::after{content:'';display:inline-block;width:18px;height:1px;background:#22D3EE}
+.st{font-size:clamp(1.9rem,4vw,3rem);font-weight:900;line-height:1.1;letter-spacing:-.03em;margin-bottom:16px}
+.ss{font-size:1.05rem;color:#64748B;line-height:1.75;max-width:680px}
+.div{max-width:1180px;margin:0 auto;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent)}
+
+/* GLASS */
+.gl{background:rgba(17,24,39,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:28px 24px;position:relative;overflow:hidden;transition:transform .3s cubic-bezier(.25,.1,.25,1),box-shadow .3s}
+.gl:hover{transform:translateY(-5px) scale(1.015);box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.gl::before{content:'';position:absolute;inset:0;border-radius:18px;background:linear-gradient(135deg,rgba(255,255,255,.04) 0%,transparent 60%);pointer-events:none}
+.sh{background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.04) 50%,transparent 100%);background-size:200% 100%;animation:shimmer 3s infinite;position:absolute;inset:0;border-radius:18px;pointer-events:none}
+
+/* CHALLENGE */
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:56px}
+@media(max-width:640px){.cg{grid-template-columns:1fr}}
+.ci{font-size:28px;margin-bottom:16px;display:block}
+.ct{font-size:1rem;font-weight:700;margin-bottom:8px}
+.cd{font-size:.9rem;color:#64748B;line-height:1.65}
+
+/* PILLARS */
+.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:56px}
+@media(max-width:800px){.pg{grid-template-columns:1fr}}
+.pn{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#2B5BFF;margin-bottom:12px}
+.pt{font-size:1.2rem;font-weight:800;margin-bottom:10px}
+.pd{font-size:.9rem;color:#64748B;line-height:1.65;margin-bottom:18px}
+.pf{list-style:none;display:flex;flex-direction:column;gap:7px}
+.pf li{font-size:.85rem;color:#94A3B8;display:flex;gap:8px;align-items:flex-start}
+.pf li::before{content:'→';color:#22D3EE;flex-shrink:0}
+
+/* STACK */
+.sg{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px}
+@media(max-width:720px){.sg{grid-template-columns:1fr}}
+.scard{text-align:center;padding:32px 20px}
+.slogo{width:56px;height:56px;border-radius:14px;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900}
+.sn{font-size:.95rem;font-weight:700;margin-bottom:6px}
+.sr{font-size:.82rem;color:#64748B;line-height:1.55}
+.conn{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:16px;padding:16px;margin-bottom:8px}
+.cp{padding:6px 14px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.cl{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(43,91,255,.4),transparent)}
+
+/* USE CASES */
+.ug{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:56px}
+@media(max-width:900px){.ug{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.ug{grid-template-columns:1fr}}
+.ut{display:inline-block;padding:3px 10px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px}
+.un{font-size:1rem;font-weight:800;margin-bottom:8px}
+.ud{font-size:.87rem;color:#64748B;line-height:1.65;margin-bottom:16px}
+.uo{font-size:.82rem;font-weight:700;padding:6px 12px;border-radius:8px;background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.18);color:#22D3EE;display:inline-block}
+
+/* STATS */
+.sbg{background:linear-gradient(135deg,rgba(11,94,215,.08),rgba(43,91,255,.05),rgba(34,211,238,.06));border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05)}
+.stg{display:grid;grid-template-columns:repeat(4,1fr);gap:32px;text-align:center}
+@media(max-width:720px){.stg{grid-template-columns:repeat(2,1fr)}}
+.sn2{font-size:clamp(2.2rem,5vw,3.6rem);font-weight:900;letter-spacing:-.04em;line-height:1;background:linear-gradient(135deg,#0B5ED7,#2B5BFF,#22D3EE);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sl{font-size:.85rem;color:#64748B;margin-top:8px;line-height:1.5}
+
+/* CASE STUDIES */
+.csg{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:48px}
+@media(max-width:640px){.csg{grid-template-columns:1fr}}
+.csb{font-size:.85rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#22D3EE;margin-bottom:10px}
+.csh{font-size:1.15rem;font-weight:800;margin-bottom:10px}
+.csp{font-size:.87rem;color:#64748B;line-height:1.65}
+.csr{margin-top:16px;padding:12px 16px;border-radius:10px;background:rgba(43,91,255,.07);border:1px solid rgba(43,91,255,.15)}
+.csrn{font-size:1.6rem;font-weight:900;color:#2B5BFF}
+.csrt{font-size:.82rem;color:#94A3B8;margin-top:2px}
+
+/* VISION */
+.vg{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:48px}
+@media(max-width:700px){.vg{grid-template-columns:1fr}}
+.vs{display:flex;gap:16px;align-items:flex-start}
+.vn{width:40px;height:40px;border-radius:12px;flex-shrink:0;background:linear-gradient(135deg,rgba(11,94,215,.2),rgba(43,91,255,.2));border:1px solid rgba(43,91,255,.25);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#2B5BFF}
+.vt h4{font-size:.95rem;font-weight:700;margin-bottom:5px}
+.vt p{font-size:.85rem;color:#64748B;line-height:1.6}
+
+/* CTA */
+.ctasec{text-align:center;padding:120px 24px;position:relative;overflow:hidden;background:linear-gradient(180deg,transparent,rgba(11,94,215,.06),transparent)}
+.ctaglow{width:400px;height:400px;border-radius:50%;position:absolute;background:radial-gradient(circle,rgba(43,91,255,.12),transparent 70%);left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;animation:glow 4s ease-in-out infinite}
+.ctai{position:relative;z-index:2;max-width:720px;margin:0 auto}
+.ctasec h2{font-size:clamp(2rem,5vw,3.4rem);font-weight:900;letter-spacing:-.04em;margin-bottom:16px;line-height:1.1}
+.ctasec p{font-size:1.05rem;color:#64748B;margin-bottom:44px;line-height:1.7}
+.ctabtns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+/* FOOTER */
+footer{border-top:1px solid rgba(255,255,255,.05);padding:32px 24px;text-align:center;font-size:.82rem;color:#334155}
+</style>
 </head>
 <body>
-  <div id="root"></div>
 
-  <script type="text/babel" data-presets="react">
-    const { useState, useEffect, useRef, useMemo, useCallback } = React;
-    const { motion, AnimatePresence, useInView, useScroll, useTransform, useSpring } = window.Motion;
+<nav id="nav">
+  <div class="ni">
+    <div class="nb">
+      <span class="nd"></span>
+      <span>PHILIPS</span>
+      <span style="color:#64748B;font-size:16px">×</span>
+      <span style="color:#2B5BFF">zeotap</span>
+    </div>
+    <div class="nl">
+      <a href="#challenge">Challenge</a>
+      <a href="#platform">Platform</a>
+      <a href="#usecases">Use Cases</a>
+      <a href="#results">Results</a>
+    </div>
+  </div>
+</nav>
 
-    /* ─── TOKENS ─── */
-    const T = {
-      philips:  "#0B5ED7",
-      zeotap:   "#2B5BFF",
-      accent:   "#22D3EE",
-      bg:       "#06080F",
-      bgAlt:    "#0C1221",
-      surface:  "#111827",
-      text:     "#E2E8F0",
-      muted:    "#64748B",
-      border:   "rgba(255,255,255,0.07)",
-    };
+<section class="hero">
+  <div class="hbg"></div>
+  <div class="hgrid"></div>
+  <div class="hbeam"></div>
+  <div class="ring r1"></div>
+  <div class="ring r2"></div>
+  <div id="pts"></div>
+  <div class="hc">
+    <div class="hbadge">✦ Innovation and You — Powered by Intelligent Data ✦</div>
+    <h1 class="hl1">When <span class="gt">health technology</span></h1>
+    <h1 class="hl2">meets <span class="gt">intelligent data</span></h1>
+    <p class="hsub">Zeotap CDP is the missing intelligence layer that unifies Philips customer data across every market, product, and channel — turning fragmented profiles into consented, actionable audiences.</p>
+    <div class="hctas">
+      <a href="#platform" class="bp">Explore the Platform →</a>
+      <a href="#usecases" class="bs">See Use Cases</a>
+    </div>
+  </div>
+  <div class="scrollhint">
+    <div class="mouse"></div>Scroll
+  </div>
+</section>
 
-    /* ─── VARIANTS ─── */
-    const fadeUp = {
-      hidden:  { opacity: 0, y: 48 },
-      visible: { opacity: 1, y: 0, transition: { duration: 0.75, ease: [0.25, 0.1, 0.25, 1] } },
-    };
-    const stagger = { visible: { transition: { staggerChildren: 0.1 } } };
-    const scaleIn = {
-      hidden:  { opacity: 0, scale: 0.9 },
-      visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: "easeOut" } },
-    };
+<section id="challenge">
+  <div class="sw">
+    <div class="rv">
+      <div class="ew">The Challenge</div>
+      <h2 class="st">Philips operates at a scale<br>that demands smarter data</h2>
+      <p class="ss">100+ markets. Multiple business units. A D2C push in Personal Health. Oracle Eloqua, Salesforce Marketing Cloud, and AWS — all generating customer data that rarely talks to each other.</p>
+    </div>
+    <div class="cg">
+      <div class="gl rs d1" style="padding:28px"><div class="sh"></div>
+        <span class="ci">🧩</span>
+        <div class="ct">Fragmented Customer Profiles</div>
+        <div class="cd">Customer data is siloed across Eloqua, SFMC, AWS, and regional CRMs. A Philips customer buying a Sonicare in Germany looks entirely different from the same person purchasing an Airfryer in Singapore.</div>
+      </div>
+      <div class="gl rs d2" style="padding:28px"><div class="sh"></div>
+        <span class="ci">🌍</span>
+        <div class="ct">100+ Market Complexity</div>
+        <div class="cd">Consent regulations differ radically across markets — GDPR, PDPA, LGPD. Without a unified consent layer, activating audiences globally is slow, risky, and manual.</div>
+      </div>
+      <div class="gl rs d3" style="padding:28px"><div class="sh"></div>
+        <span class="ci">📉</span>
+        <div class="ct">Wasted Media Spend</div>
+        <div class="cd">Without a real-time identity graph, Philips can't suppress existing customers from acquisition campaigns — leading to significant wasted paid media budget and a poor customer experience.</div>
+      </div>
+      <div class="gl rs d4" style="padding:28px"><div class="sh"></div>
+        <span class="ci">🔄</span>
+        <div class="ct">D2C Transition Pressure</div>
+        <div class="cd">The shift to D2C in Personal Health requires building direct relationships at scale — impossible without a first-party data strategy and real-time activation capability.</div>
+      </div>
+    </div>
+  </div>
+</section>
 
-    /* ─── PARTICLES ─── */
-    function Particles({ count = 50 }) {
-      const dots = useMemo(() => Array.from({ length: count }, (_, i) => ({
-        id: i,
-        x: Math.random() * 100, y: Math.random() * 100,
-        size: Math.random() * 2.5 + 0.8,
-        delay: Math.random() * 5,
-        duration: Math.random() * 8 + 6,
-        opacity: Math.random() * 0.35 + 0.08,
-        color: i % 3 === 0 ? T.philips : i % 3 === 1 ? T.zeotap : T.accent,
-      })), [count]);
+<div class="div"></div>
 
-      return (
-        <div style={{ position:"absolute", inset:0, overflow:"hidden", pointerEvents:"none", zIndex:1 }}>
-          {dots.map(d => (
-            <motion.div key={d.id}
-              style={{ position:"absolute", left:`${d.x}%`, top:`${d.y}%`, width:d.size, height:d.size, borderRadius:"50%", background:d.color }}
-              animate={{ y:[0,-24,0], opacity:[d.opacity, d.opacity*2.2, d.opacity] }}
-              transition={{ duration:d.duration, delay:d.delay, repeat:Infinity, ease:"easeInOut" }}
-            />
-          ))}
+<section id="platform">
+  <div class="sw">
+    <div class="rv">
+      <div class="ew">The Platform</div>
+      <h2 class="st">One intelligence layer.<br><span class="gt">Three transformative capabilities.</span></h2>
+      <p class="ss">Zeotap CDP is built for enterprise complexity — designed to work alongside your existing stack, not replace it.</p>
+    </div>
+    <div class="pg">
+      <div class="gl rs d1" style="padding:32px 28px"><div class="sh"></div>
+        <div class="pn">01 / Unify</div>
+        <div class="pt">iD⁺ Identity Resolution</div>
+        <div class="pd">Build a single, persistent customer profile across all touchpoints — online, offline, cross-device, cross-market — using deterministic and probabilistic matching.</div>
+        <ul class="pf">
+          <li>Cross-device identity graph</li>
+          <li>Offline-to-online matching</li>
+          <li>100+ market-level resolution</li>
+          <li>First-party ID stitching across Eloqua &amp; SFMC</li>
+        </ul>
+      </div>
+      <div class="gl rs d2" style="padding:32px 28px"><div class="sh"></div>
+        <div class="pn">02 / Govern</div>
+        <div class="pt">Consent &amp; Compliance Engine</div>
+        <div class="pd">Enterprise-grade consent management built into every profile. GDPR, CCPA, PDPA, LGPD — every market's requirements handled automatically, in real time.</div>
+        <ul class="pf">
+          <li>Consent stored at identity level</li>
+          <li>Real-time suppression enforcement</li>
+          <li>Full audit trail for regulators</li>
+          <li>Zero-trust data governance framework</li>
+        </ul>
+      </div>
+      <div class="gl rs d3" style="padding:32px 28px"><div class="sh"></div>
+        <div class="pn">03 / Activate</div>
+        <div class="pt">Real-Time Audience Activation</div>
+        <div class="pd">Push consented, enriched audiences to any downstream platform in real time. Match rates 2–3× higher than industry standard.</div>
+        <ul class="pf">
+          <li>250+ native integrations</li>
+          <li>Sub-second audience refresh</li>
+          <li>Lookalike model generation</li>
+          <li>Closed-loop measurement</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<section id="stack">
+  <div class="sw">
+    <div class="rv">
+      <div class="ew">Stack Fit</div>
+      <h2 class="st">Built to plug into<br><span class="gt">your existing world</span></h2>
+      <p class="ss">Zeotap doesn't replace Eloqua or SFMC — it makes them dramatically more powerful by feeding unified, consented, enriched profiles.</p>
+    </div>
+    <div class="sg">
+      <div class="conn rv d1">
+        <span class="cp" style="background:rgba(11,94,215,.12);border:1px solid rgba(11,94,215,.25);color:#60A5FA">Oracle Eloqua</span>
+        <span class="cl"></span>
+        <span class="cp" style="background:rgba(43,91,255,.18);border:1px solid rgba(43,91,255,.35);color:#818CF8;font-size:13px;padding:8px 18px">zeotap CDP</span>
+        <span class="cl"></span>
+        <span class="cp" style="background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);color:#22D3EE">Salesforce MC</span>
+      </div>
+      <div class="gl scard rs d1"><div class="sh"></div>
+        <div class="slogo" style="background:rgba(11,94,215,.15);border:1px solid rgba(11,94,215,.2);color:#60A5FA">E</div>
+        <div class="sn">Oracle Eloqua</div>
+        <div class="sr">Zeotap enriches Eloqua contact lists with unified identity, suppresses converted customers, and feeds real-time behavioural segments into campaign triggers.</div>
+      </div>
+      <div class="gl scard rs d2"><div class="sh"></div>
+        <div class="slogo" style="background:rgba(43,91,255,.15);border:1px solid rgba(43,91,255,.2);color:#818CF8">SF</div>
+        <div class="sn">Salesforce MC</div>
+        <div class="sr">Unified profiles and consent states flow into SFMC Journey Builder — enabling true 1:1 personalisation across email, SMS and push across every market.</div>
+      </div>
+      <div class="gl scard rs d3"><div class="sh"></div>
+        <div class="slogo" style="background:rgba(255,153,0,.1);border:1px solid rgba(255,153,0,.2);color:#FBBF24">AWS</div>
+        <div class="sn">AWS / Redshift</div>
+        <div class="sr">Zeotap's bidirectional AWS connector syncs enriched profiles and audience segments directly into your data lake — keeping your analytics stack intact.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<section id="usecases">
+  <div class="sw">
+    <div class="rv">
+      <div class="ew">Use Cases</div>
+      <h2 class="st">Six ways Zeotap moves<br><span class="gt">the needle for Philips</span></h2>
+    </div>
+    <div class="ug">
+      <div class="gl rs d1" style="padding:26px 22px"><div class="sh"></div>
+        <div class="ut" style="background:rgba(11,94,215,.12);color:#60A5FA;border:1px solid rgba(11,94,215,.2)">D2C Growth</div>
+        <div class="un">Direct Relationship at Scale</div>
+        <div class="ud">Identify retail purchasers, stitch their offline identity to first-party IDs, and onboard them into your D2C ecosystem with personalised welcome journeys.</div>
+        <div class="uo">↑ D2C conversion by 28–35%</div>
+      </div>
+      <div class="gl rs d2" style="padding:26px 22px"><div class="sh"></div>
+        <div class="ut" style="background:rgba(43,91,255,.12);color:#818CF8;border:1px solid rgba(43,91,255,.2)">Retention</div>
+        <div class="un">Churn Prediction &amp; Win-Back</div>
+        <div class="ud">Combine behavioural signals, product usage, and CRM history to build churn propensity models — then activate win-back audiences before they're gone.</div>
+        <div class="uo">40% reduction in preventable churn</div>
+      </div>
+      <div class="gl rs d3" style="padding:26px 22px"><div class="sh"></div>
+        <div class="ut" style="background:rgba(34,211,238,.08);color:#22D3EE;border:1px solid rgba(34,211,238,.18)">Cross-sell</div>
+        <div class="un">Cross-Category Expansion</div>
+        <div class="ud">A Sonicare buyer has high affinity for Philips One and oral care accessories. Zeotap identifies these signals and routes them into the right automated journey.</div>
+        <div class="uo">2.4× cross-sell revenue uplift</div>
+      </div>
+      <div class="gl rs d4" style="padding:26px 22px"><div class="sh"></div>
+        <div class="ut" style="background:rgba(11,94,215,.12);color:#60A5FA;border:1px solid rgba(11,94,215,.2)">Paid Media</div>
+        <div class="un">Suppression &amp; Lookalikes</div>
+        <div class="ud">Stop paying to re-acquire existing customers. Zeotap suppresses them from acquisition campaigns and builds lookalike models that find new buyers.</div>
+        <div class="uo">35% reduction in wasted ad spend</div>
+      </div>
+      <div class="gl rs d5" style="padding:26px 22px"><div class="sh"></div>
+        <div class="ut" style="background:rgba(43,91,255,.12);color:#818CF8;border:1px solid rgba(43,91,255,.2)">Global Scale</div>
+        <div class="un">Multi-Market Consent at Speed</div>
+        <div class="ud">A consent event in Germany automatically propagates the correct suppression rules across Eloqua, SFMC, and all paid media — in real time. No manual work. No compliance risk.</div>
+        <div class="uo">100% consent compliance, all markets</div>
+      </div>
+      <div class="gl rs d6" style="padding:26px 22px"><div class="sh"></div>
+        <div class="ut" style="background:rgba(34,211,238,.08);color:#22D3EE;border:1px solid rgba(34,211,238,.18)">Analytics</div>
+        <div class="un">360° Customer Intelligence</div>
+        <div class="ud">Unified profiles flow into AWS Redshift — giving your analytics team a clean, resolved, consented dataset for attribution models, CLV predictions, and journey analysis.</div>
+        <div class="uo">Full customer lifetime view, all channels</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="results" class="sbg">
+  <div class="sw" style="padding:80px 24px">
+    <div class="rv" style="text-align:center;margin-bottom:64px">
+      <div class="ew" style="justify-content:center">Proven Results</div>
+      <h2 class="st" style="text-align:center">What Zeotap delivers<br>for brands like Philips</h2>
+    </div>
+    <div class="stg">
+      <div class="rv d1">
+        <div class="sn2" data-end="40" data-suf="%">0%</div>
+        <div class="sl">Reduction in wasted<br>media spend</div>
+      </div>
+      <div class="rv d2">
+        <div class="sn2" data-end="2.4" data-suf="×" data-dec="1">0×</div>
+        <div class="sl">Cross-sell revenue<br>uplift on average</div>
+      </div>
+      <div class="rv d3">
+        <div class="sn2" data-end="250" data-suf="+">0+</div>
+        <div class="sl">Native integrations<br>including your full stack</div>
+      </div>
+      <div class="rv d4">
+        <div class="sn2" data-end="100" data-suf="+">0+</div>
+        <div class="sl">Markets with compliant<br>consent management</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="casestudies">
+  <div class="sw">
+    <div class="rv">
+      <div class="ew">Case Studies</div>
+      <h2 class="st">Brands already winning<br><span class="gt">with Zeotap CDP</span></h2>
+      <p class="ss">Two enterprise consumer brands with similar complexity to Philips — both transformed by unified, consented data.</p>
+    </div>
+    <div class="csg">
+      <div class="gl rs d1" style="padding:32px 28px"><div class="sh"></div>
+        <div class="csb">Douglas — Beauty Retail</div>
+        <div class="csh">From 40+ fragmented data sources to one unified customer view</div>
+        <div class="csp">Europe's largest beauty retailer, 2,400+ stores across 26 markets. Zeotap CDP stitched together loyalty, e-commerce, and CRM into a single customer identity that works across every market and channel.</div>
+        <div class="csr">
+          <div class="csrn">3.5×</div>
+          <div class="csrt">Increase in marketing efficiency across 26 European markets</div>
         </div>
-      );
-    }
-
-    /* ─── GRID BG ─── */
-    function GridBg() {
-      return (
-        <div style={{
-          position:"absolute", inset:0, overflow:"hidden", pointerEvents:"none",
-          maskImage:"radial-gradient(ellipse 80% 55% at 50% 20%, black 30%, transparent 100%)",
-          WebkitMaskImage:"radial-gradient(ellipse 80% 55% at 50% 20%, black 30%, transparent 100%)",
-        }}>
-          <div style={{
-            position:"absolute", inset:0, opacity:0.07,
-            backgroundImage:`linear-gradient(${T.muted} 1px, transparent 1px), linear-gradient(90deg, ${T.muted} 1px, transparent 1px)`,
-            backgroundSize:"64px 64px",
-          }}/>
+      </div>
+      <div class="gl rs d2" style="padding:32px 28px"><div class="sh"></div>
+        <div class="csb">Virgin Media O2 — Telco</div>
+        <div class="csh">Real-time consent management across 47M+ customer records</div>
+        <div class="csp">VMO2 used Zeotap to build a consent-first data infrastructure — enabling real-time suppression enforcement across paid and owned channels, dramatically improving CRM personalisation depth.</div>
+        <div class="csr">
+          <div class="csrn">42%</div>
+          <div class="csrt">Reduction in wasted ad spend through intelligent suppression</div>
         </div>
-      );
-    }
+      </div>
+    </div>
+  </div>
+</section>
 
-    /* ─── COUNTER ─── */
-    function Counter({ end, prefix="", suffix="", duration=2.2 }) {
-      const ref = useRef(null);
-      const inView = useInView(ref, { once:true, margin:"-80px" });
-      const [val, setVal] = useState(0);
-      useEffect(() => {
-        if (!inView) return;
-        let start = 0;
-        const step = end / (duration * 60);
-        const id = setInterval(() => {
-          start += step;
-          if (start >= end) { setVal(end); clearInterval(id); }
-          else setVal(start);
-        }, 1000/60);
-        return () => clearInterval(id);
-      }, [inView, end, duration]);
-      const display = end % 1 !== 0 ? val.toFixed(1) : Math.round(val);
-      return <span ref={ref}>{prefix}{display}{suffix}</span>;
-    }
+<div class="div"></div>
 
-    /* ─── GLASS CARD ─── */
-    function GlassCard({ children, style, noHover=false, ...props }) {
-      return (
-        <motion.div
-          variants={scaleIn}
-          whileHover={noHover ? {} : { scale:1.025, y:-5 }}
-          transition={{ type:"spring", stiffness:280, damping:22 }}
-          style={{
-            background:"rgba(17,24,39,0.55)",
-            backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)",
-            border:`1px solid ${T.border}`,
-            borderRadius:18, padding:"28px 24px",
-            position:"relative", overflow:"hidden",
-            ...style,
-          }}
-          {...props}
-        >
-          {children}
-        </motion.div>
-      );
-    }
+<section id="vision">
+  <div class="sw">
+    <div class="rv">
+      <div class="ew">The Vision</div>
+      <h2 class="st">What the world looks like when<br><span class="gt">we build this together</span></h2>
+      <p class="ss">A Philips where every customer is known, every interaction is personalised, and every market is compliant — from day one.</p>
+    </div>
+    <div class="vg">
+      <div class="gl rs d1" style="padding:28px"><div class="sh"></div>
+        <div class="vs"><div class="vn">1</div><div class="vt"><h4>Unified Identity Across All Markets</h4><p>Every Philips customer — whether they bought a Lumea in Amsterdam or a Hue bulb in Tokyo — lives in one resolved, persistent profile that travels with them across channels and markets.</p></div></div>
+      </div>
+      <div class="gl rs d2" style="padding:28px"><div class="sh"></div>
+        <div class="vs"><div class="vn">2</div><div class="vt"><h4>Consent as a Competitive Advantage</h4><p>Rather than a compliance burden, consent becomes a capability. Philips can activate customers compliantly across every market — faster and more precisely than competitors still managing it manually.</p></div></div>
+      </div>
+      <div class="gl rs d3" style="padding:28px"><div class="sh"></div>
+        <div class="vs"><div class="vn">3</div><div class="vt"><h4>Intelligence That Compounds</h4><p>The more channels Philips connects, the smarter every profile becomes. Device usage, purchase history, support interactions — all feeding a flywheel of increasingly precise personalisation.</p></div></div>
+      </div>
+      <div class="gl rs d4" style="padding:28px"><div class="sh"></div>
+        <div class="vs"><div class="vn">4</div><div class="vt"><h4>D2C at Global Scale</h4><p>Philips builds the direct relationships that have always been the ambition — without the complexity. D2C growth powered by first-party intelligence, compliant by design, personalised from the very first interaction.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
 
-    /* ─── SECTION ─── */
-    function Section({ children, id, style }) {
-      const ref = useRef(null);
-      const inView = useInView(ref, { once:true, margin:"-60px" });
-      return (
-        <motion.section ref={ref} id={id}
-          initial="hidden" animate={inView?"visible":"hidden"} variants={stagger}
-          style={{ maxWidth:1180, margin:"0 auto", padding:"96px 24px", position:"relative", ...style }}
-        >
-          {children}
-        </motion.section>
-      );
-    }
+<section class="ctasec">
+  <div class="ctaglow"></div>
+  <div class="ctai rv">
+    <div class="ew" style="justify-content:center">Let's Build This</div>
+    <h2>Ready to turn Philips data<br>into <span class="gt">your greatest asset?</span></h2>
+    <p>One platform. One truth. Every customer, every market, every moment.</p>
+    <div class="ctabtns">
+      <a href="mailto:christopher.mackinnon@zeotap.com" class="bp">Get in Touch →</a>
+      <a href="https://zeotap.com" target="_blank" class="bs">Learn More About Zeotap</a>
+    </div>
+  </div>
+</section>
 
-    /* ─── GRADIENT TEXT ─── */
-    function GT({ children }) {
-      return (
-        <span style={{
-          background:`linear-gradient(125deg, ${T.philips}, ${T.zeotap} 50%, ${T.accent})`,
-          WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text",
-        }}>
-          {children}
-        </span>
-      );
-    }
+<footer>
+  <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px">
+    <span class="nd"></span>
+    <span style="font-weight:800;color:#475569;font-size:13px">PHILIPS</span>
+    <span style="color:#334155">×</span>
+    <span style="font-weight:800;color:#2B5BFF;font-size:13px">zeotap</span>
+  </div>
+  <p>© 2025 Zeotap GmbH. Prepared exclusively for Philips marketing leadership.</p>
+</footer>
 
-    /* ─── EYEBROW ─── */
-    function Eyebrow({ children }) {
-      return (
-        <div style={{
-          display:"inline-flex", alignItems:"center", gap:6,
-          fontSize:11, fontWeight:700, letterSpacing:"0.14em", textTransform:"uppercase",
-          color:T.accent, marginBottom:18,
-        }}>
-          <span style={{ width:18, height:1, background:T.accent, display:"inline-block" }}/>
-          {children}
-          <span style={{ width:18, height:1, background:T.accent, display:"inline-block" }}/>
-        </div>
-      );
-    }
+<script>
+// NAV
+window.addEventListener('scroll',function(){
+  document.getElementById('nav').classList.toggle('sc',window.scrollY>40);
+},{passive:true});
 
-    /* ═══════════ MAIN APP ═══════════ */
-    function App() {
-      const { scrollYProgress } = useScroll();
-      const navBg = useTransform(scrollYProgress, [0,0.04], ["rgba(6,8,15,0)","rgba(6,8,15,0.92)"]);
-      const navBorder = useTransform(scrollYProgress, [0,0.04], ["rgba(255,255,255,0)","rgba(255,255,255,0.07)"]);
+// PARTICLES
+(function(){
+  var c=document.getElementById('pts');
+  var cols=['#0B5ED7','#2B5BFF','#22D3EE'];
+  var anims=['pf0','pf1','pf2'];
+  for(var i=0;i<55;i++){
+    var el=document.createElement('div');
+    var sz=(Math.random()*2.2+0.8).toFixed(1);
+    var op=(Math.random()*0.28+0.06).toFixed(2);
+    var dur=(Math.random()*8+6).toFixed(1);
+    var dly=(Math.random()*6).toFixed(1);
+    el.style.cssText='position:absolute;left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:'+cols[i%3]+';opacity:'+op+';animation:'+anims[i%3]+' '+dur+'s ease-in-out '+dly+'s infinite;';
+    c.appendChild(el);
+  }
+})();
 
-      return (
-        <div style={{ background:T.bg, color:T.text, minHeight:"100vh", overflowX:"hidden" }}>
+// SCROLL REVEAL
+var io=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target);}
+  });
+},{threshold:0.08,rootMargin:'-30px'});
+document.querySelectorAll('.rv,.rs').forEach(function(el){io.observe(el);});
 
-          {/* ── NAV ── */}
-          <motion.nav style={{
-            position:"fixed", top:0, left:0, right:0, zIndex:200,
-            background:navBg, borderBottom:`1px solid`, borderColor:navBorder,
-            backdropFilter:"blur(14px)",
-          }}>
-            <div style={{ maxWidth:1180, margin:"0 auto", padding:"13px 24px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-              <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                <span style={{ display:"inline-flex", alignItems:"center", gap:6 }}>
-                  <span style={{ width:7, height:7, borderRadius:"50%", background:T.philips, display:"inline-block" }}/>
-                  <span style={{ fontWeight:800, fontSize:14, letterSpacing:"-0.02em" }}>PHILIPS</span>
-                </span>
-                <span style={{ color:T.muted, fontSize:16 }}>×</span>
-                <span style={{ fontWeight:800, fontSize:14, letterSpacing:"-0.02em", color:T.zeotap }}>zeotap</span>
-              </div>
-              <div style={{ display:"flex", gap:28, fontSize:13 }}>
-                {[["Challenge","#challenge"],["Platform","#platform"],["Use Cases","#usecases"],["Results","#results"]].map(([l,h]) => (
-                  <a key={l} href={h} style={{ color:T.muted, transition:"color .2s" }}
-                    onMouseOver={e=>e.target.style.color=T.text} onMouseOut={e=>e.target.style.color=T.muted}>{l}</a>
-                ))}
-              </div>
-            </div>
-          </motion.nav>
-
-          {/* ══════════ HERO ══════════ */}
-          <section style={{ position:"relative", minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", overflow:"hidden" }}>
-            {/* Mesh gradient */}
-            <div style={{ position:"absolute", inset:0, background:`
-              radial-gradient(ellipse 90% 70% at 15% 0%, rgba(11,94,215,0.20) 0%, transparent 55%),
-              radial-gradient(ellipse 70% 60% at 85% 20%, rgba(43,91,255,0.16) 0%, transparent 55%),
-              radial-gradient(ellipse 55% 45% at 50% 90%, rgba(34,211,238,0.10) 0%, transparent 60%)
-            ` }}/>
-            <Particles count={70}/>
-            <GridBg/>
-
-            {/* Animated beam */}
-            <motion.div style={{
-              position:"absolute", top:0, left:"50%", width:1, height:"45%",
-              background:`linear-gradient(to bottom, transparent, ${T.zeotap}50, transparent)`,
-            }} animate={{ opacity:[0.25,0.75,0.25] }} transition={{ duration:3.5, repeat:Infinity }}/>
-
-            {/* Orbiting ring */}
-            <motion.div style={{
-              position:"absolute", top:"50%", left:"50%", width:500, height:500,
-              borderRadius:"50%", border:`1px solid rgba(43,91,255,0.08)`,
-              transform:"translate(-50%,-50%)",
-            }} animate={{ rotate:360 }} transition={{ duration:40, repeat:Infinity, ease:"linear" }}/>
-            <motion.div style={{
-              position:"absolute", top:"50%", left:"50%", width:360, height:360,
-              borderRadius:"50%", border:`1px solid rgba(11,94,215,0.07)`,
-              transform:"translate(-50%,-50%)",
-            }} animate={{ rotate:-360 }} transition={{ duration:28, repeat:Infinity, ease:"linear" }}/>
-
-            {/* Content */}
-            <div style={{ position:"relative", zIndex:10, textAlign:"center", maxWidth:920, padding:"0 24px" }}>
-              {/* Badge */}
-              <motion.div initial={{ opacity:0, y:24 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.7 }}
-                style={{
-                  display:"inline-flex", alignItems:"center", gap:8,
-                  padding:"7px 18px", borderRadius:999,
-                  background:"rgba(43,91,255,0.10)", border:`1px solid rgba(43,91,255,0.22)`,
-                  fontSize:12, fontWeight:600, color:T.accent, marginBottom:36, letterSpacing:"0.03em",
-                }}>
-                ✦ Innovation and You — Powered by Intelligent Data ✦
-              </motion.div>
-
-              {/* H1 */}
-              <motion.h1 initial={{ opacity:0, y:50 }} animate={{ opacity:1, y:0 }} transition={{ duration:1, delay:0.2, ease:[0.25,0.1,0.25,1] }}
-                style={{ fontSize:"clamp(2.6rem, 6.5vw, 4.8rem)", fontWeight:900, lineHeight:1.07, letterSpacing:"-0.045em", margin:"0 0 8px" }}>
-                When <GT>health technology</GT>
-              </motion.h1>
-              <motion.h1 initial={{ opacity:0, y:50 }} animate={{ opacity:1, y:0 }} transition={{ duration:1, delay:0.35, ease:[0.25,0.1,0.25,1] }}
-                style={{ fontSize:"clamp(2.6rem, 6.5vw, 4.8rem)", fontWeight:900, lineHeight:1.07, letterSpacing:"-0.045em", margin:"0 0 32px" }}>
-                meets <GT>intelligent data</GT>
-              </motion.h1>
-
-              {/* Subtitle */}
-              <motion.p initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.8, delay:0.55 }}
-                style={{ fontSize:"clamp(1rem, 2.2vw, 1.22rem)", color:T.muted, maxWidth:660, margin:"0 auto 44px", lineHeight:1.78 }}>
-                Zeotap CDP is the missing intelligence layer that unifies Philips customer data across every market, product, and channel — turning fragmented profiles into consented, actionable audiences.
-              </motion.p>
-
-              {/* CTAs */}
-              <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.6, delay:0.8 }}
-                style={{ display:"flex", gap:14, justifyContent:"center", flexWrap:"wrap" }}>
-                <motion.a href="#challenge" whileHover={{ scale:1.04 }} whileTap={{ scale:0.97 }}
-                  style={{
-                    background:`linear-gradient(135deg, ${T.philips}, ${T.zeotap})`,
-                    color:"white", borderRadius:13, padding:"15px 34px",
-                    fontSize:15, fontWeight:700, display:"inline-flex", alignItems:"center", gap:8,
-                    boxShadow:`0 0 32px rgba(43,91,255,0.35)`, cursor:"pointer",
-                  }}>
-                  Explore the Vision →
-                </motion.a>
-                <motion.a href="#platform" whileHover={{ scale:1.04, background:"rgba(255,255,255,0.09)" }} whileTap={{ scale:0.97 }}
-                  style={{
-                    background:"rgba(255,255,255,0.05)", color:T.text,
-                    border:`1px solid rgba(255,255,255,0.13)`, borderRadius:13,
-                    padding:"15px 34px", fontSize:15, fontWeight:500, cursor:"pointer",
-                  }}>
-                  See the Platform
-                </motion.a>
-              </motion.div>
-
-              {/* Logos */}
-              <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:1.3, duration:0.9 }}
-                style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:24, marginTop:64 }}>
-                <span style={{ fontWeight:900, fontSize:20, letterSpacing:"0.04em", color:T.text }}>PHILIPS</span>
-                <div style={{ width:1, height:22, background:T.border }}/>
-                <span style={{ fontWeight:900, fontSize:20, color:T.zeotap }}>zeotap</span>
-              </motion.div>
-            </div>
-
-            {/* Scroll cue */}
-            <motion.div animate={{ y:[0,9,0] }} transition={{ duration:2.2, repeat:Infinity }}
-              style={{ position:"absolute", bottom:38, left:"50%", transform:"translateX(-50%)", display:"flex", flexDirection:"column", alignItems:"center", gap:8 }}>
-              <span style={{ fontSize:10, color:T.muted, letterSpacing:"0.14em", textTransform:"uppercase" }}>Scroll</span>
-              <div style={{ width:1, height:22, background:`linear-gradient(to bottom, ${T.muted}80, transparent)` }}/>
-            </motion.div>
-          </section>
-
-          {/* ══════════ CHALLENGE ══════════ */}
-          <section id="challenge" style={{ background:T.bgAlt, borderTop:`1px solid ${T.border}`, borderBottom:`1px solid ${T.border}`, position:"relative" }}>
-            <Section>
-              <motion.div variants={fadeUp} style={{ textAlign:"center", maxWidth:800, margin:"0 auto" }}>
-                <Eyebrow>The Challenge</Eyebrow>
-                <h2 style={{ fontSize:"clamp(2rem,4.5vw,3.1rem)", fontWeight:800, letterSpacing:"-0.035em", lineHeight:1.14, margin:"0 0 24px" }}>
-                  Powerful tools.{" "}
-                  <span style={{ color:T.muted }}>Fragmented data.</span>{" "}
-                  Missed opportunities.
-                </h2>
-                <p style={{ fontSize:17, color:T.muted, lineHeight:1.78 }}>
-                  Philips runs <strong style={{ color:T.text }}>Oracle Eloqua</strong>, <strong style={{ color:T.text }}>Salesforce Marketing Cloud</strong>, and <strong style={{ color:T.text }}>AWS</strong> across 100+ markets — yet customer profiles remain siloed by product line, region, and channel. Without a unified identity layer, match rates suffer, suppression breaks down, and personalisation at scale stays out of reach.
-                </p>
-              </motion.div>
-
-              {/* Convergence diagram */}
-              <motion.div variants={fadeUp} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:16, marginTop:56, flexWrap:"wrap" }}>
-                {["Oracle Eloqua","Salesforce MC","AWS"].map((t,i)=>(
-                  <motion.div key={t}
-                    initial={{ opacity:0, x:(i-1)*60 }}
-                    whileInView={{ opacity:1, x:0 }}
-                    viewport={{ once:true }}
-                    transition={{ delay:i*0.15, duration:0.6 }}
-                    style={{ padding:"14px 26px", borderRadius:11, background:"rgba(255,255,255,0.03)", border:`1px solid ${T.border}`, fontSize:14, fontWeight:600, color:T.muted }}>
-                    {t}
-                  </motion.div>
-                ))}
-                <motion.span initial={{ scale:0 }} whileInView={{ scale:1 }} viewport={{ once:true }} transition={{ delay:0.55, type:"spring" }}
-                  style={{ fontSize:20, color:T.accent }}>→</motion.span>
-                <motion.div initial={{ opacity:0, scale:0.75 }} whileInView={{ opacity:1, scale:1 }} viewport={{ once:true }} transition={{ delay:0.75, type:"spring", stiffness:200 }}
-                  style={{
-                    padding:"14px 26px", borderRadius:11,
-                    background:`linear-gradient(135deg, ${T.philips}18, ${T.zeotap}18)`,
-                    border:`1px solid ${T.zeotap}50`,
-                    fontSize:14, fontWeight:800, color:T.accent,
-                    boxShadow:`0 0 40px ${T.zeotap}15`,
-                  }}>
-                  Zeotap CDP
-                </motion.div>
-              </motion.div>
-
-              {/* Pain cards */}
-              <motion.div variants={stagger} style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(220px,1fr))", gap:14, marginTop:44 }}>
-                {[
-                  { label:"Siloed Profiles", desc:"Customers unknown across products and brands" },
-                  { label:"Low Match Rates", desc:"Audiences lost before paid media activation" },
-                  { label:"Broken Suppression", desc:"Budget wasted reaching existing customers" },
-                  { label:"Consent Gaps", desc:"Governance varies by market, creating risk" },
-                ].map(p=>(
-                  <motion.div key={p.label} variants={fadeUp}
-                    style={{ padding:"20px", borderRadius:12, background:"rgba(255,255,255,0.025)", border:`1px solid ${T.border}`, textAlign:"center" }}>
-                    <div style={{ fontSize:14, fontWeight:700, color:T.text, marginBottom:5 }}>{p.label}</div>
-                    <div style={{ fontSize:13, color:T.muted, lineHeight:1.55 }}>{p.desc}</div>
-                  </motion.div>
-                ))}
-              </motion.div>
-            </Section>
-          </section>
-
-          {/* ══════════ PLATFORM ══════════ */}
-          <section id="platform" style={{ position:"relative" }}>
-            <Section>
-              <motion.div variants={fadeUp} style={{ textAlign:"center", marginBottom:52 }}>
-                <Eyebrow>The Platform</Eyebrow>
-                <h2 style={{ fontSize:"clamp(2rem,4.5vw,3.1rem)", fontWeight:800, letterSpacing:"-0.035em", lineHeight:1.14, margin:0 }}>
-                  Built to <GT>Unify</GT>, <GT>Govern</GT>, and <GT>Activate</GT>
-                </h2>
-              </motion.div>
-
-              <motion.div variants={stagger} style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(290px,1fr))", gap:22 }}>
-                {[
-                  { icon:"⬡", title:"Unify", color:T.philips, body:"Resolve identities across every Philips touchpoint — Philips.com, regional shops, Avent, Hue, and support — into one privacy-safe customer profile that travels with the customer." },
-                  { icon:"⬡", title:"Govern", color:T.zeotap, body:"Consent management and data governance built-in. Stay compliant across all 100+ Philips markets without slowing down activation or adding overhead." },
-                  { icon:"⬡", title:"Activate", color:T.accent, body:"Push enriched audiences directly into Oracle, Salesforce, AWS, and 150+ connectors — no rip-and-replace, just better performance in every system you already own." },
-                ].map(c=>(
-                  <GlassCard key={c.title}>
-                    <div style={{ position:"absolute", top:0, left:0, right:0, height:2, background:`linear-gradient(90deg, transparent, ${c.color}, transparent)` }}/>
-                    <div style={{
-                      width:48, height:48, borderRadius:13, display:"flex", alignItems:"center", justifyContent:"center",
-                      background:`${c.color}14`, color:c.color, fontSize:22, marginBottom:20,
-                    }}>
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                        {c.title==="Unify" && <><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12c0 4 4.5 7.4 10 7.4s10-3.4 10-7.4"/><path d="M2 12c0-4 4.5-7.4 10-7.4s10 3.4 10 7.4"/></>}
-                        {c.title==="Govern" && <><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></>}
-                        {c.title==="Activate" && <><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></>}
-                      </svg>
-                    </div>
-                    <h3 style={{ fontSize:22, fontWeight:800, margin:"0 0 12px", letterSpacing:"-0.025em" }}>{c.title}</h3>
-                    <p style={{ fontSize:15, color:T.muted, lineHeight:1.74, margin:0 }}>{c.body}</p>
-                  </GlassCard>
-                ))}
-              </motion.div>
-
-              {/* Stack diagram */}
-              <motion.div variants={fadeUp} style={{ marginTop:60 }}>
-                <GlassCard noHover style={{ padding:"40px 32px" }}>
-                  <div style={{ textAlign:"center", marginBottom:36 }}>
-                    <Eyebrow>Stack Integration</Eyebrow>
-                    <h3 style={{ fontSize:"clamp(1.5rem,3vw,2rem)", fontWeight:800, letterSpacing:"-0.03em", margin:0 }}>
-                      Selective Modernisation — <span style={{ color:T.muted }}>Not Rip-and-Replace</span>
-                    </h3>
-                  </div>
-                  <div style={{ display:"grid", gridTemplateColumns:"1fr auto 1fr", gap:24, alignItems:"center" }}>
-                    {/* Sources */}
-                    <div style={{ display:"flex", flexDirection:"column", gap:10, alignItems:"flex-end" }}>
-                      {["Philips.com","Avent Store","Hue.com","HealthSuite","Support Portal"].map((s,i)=>(
-                        <motion.div key={s} initial={{ opacity:0, x:-40 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:i*0.08, duration:0.5 }}
-                          style={{ padding:"10px 18px", borderRadius:9, background:"rgba(255,255,255,0.03)", border:`1px solid ${T.border}`, fontSize:13, fontWeight:500, color:T.muted, whiteSpace:"nowrap" }}>
-                          {s}
-                        </motion.div>
-                      ))}
-                      <div style={{ fontSize:10, color:T.muted, letterSpacing:"0.12em", textTransform:"uppercase", marginTop:6 }}>Data Sources</div>
-                    </div>
-
-                    {/* CDP hub */}
-                    <motion.div initial={{ opacity:0, scale:0.8 }} whileInView={{ opacity:1, scale:1 }} viewport={{ once:true }} transition={{ delay:0.45, type:"spring", stiffness:180 }}
-                      style={{
-                        padding:"28px 24px", borderRadius:18, textAlign:"center", minWidth:156,
-                        background:`linear-gradient(155deg, ${T.philips}16, ${T.zeotap}18)`,
-                        border:`1px solid ${T.zeotap}45`,
-                        boxShadow:`0 0 55px ${T.zeotap}13, inset 0 0 35px ${T.zeotap}04`,
-                      }}>
-                      <div style={{ fontSize:28, marginBottom:10 }}>⬡</div>
-                      <div style={{ fontSize:17, fontWeight:900, letterSpacing:"-0.025em" }}>Zeotap CDP</div>
-                      <div style={{ fontSize:11, color:T.muted, marginTop:10, lineHeight:1.65 }}>Identity Resolution<br/>Consent Layer<br/>Audience Engine</div>
-                    </motion.div>
-
-                    {/* Channels */}
-                    <div style={{ display:"flex", flexDirection:"column", gap:10, alignItems:"flex-start" }}>
-                      {["Oracle Eloqua","Salesforce MC","Google Ads","Meta Ads","AWS Pinpoint"].map((s,i)=>(
-                        <motion.div key={s} initial={{ opacity:0, x:40 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:i*0.08+0.55, duration:0.5 }}
-                          style={{ padding:"10px 18px", borderRadius:9, background:"rgba(255,255,255,0.03)", border:`1px solid ${T.border}`, fontSize:13, fontWeight:500, color:T.muted, whiteSpace:"nowrap" }}>
-                          {s}
-                        </motion.div>
-                      ))}
-                      <div style={{ fontSize:10, color:T.muted, letterSpacing:"0.12em", textTransform:"uppercase", marginTop:6 }}>Activation Channels</div>
-                    </div>
-                  </div>
-                </GlassCard>
-              </motion.div>
-            </Section>
-          </section>
-
-          {/* ══════════ USE CASES ══════════ */}
-          <section id="usecases" style={{ background:T.bgAlt, borderTop:`1px solid ${T.border}`, borderBottom:`1px solid ${T.border}`, position:"relative" }}>
-            <Section>
-              <motion.div variants={fadeUp} style={{ textAlign:"center", marginBottom:52 }}>
-                <Eyebrow>Use Cases</Eyebrow>
-                <h2 style={{ fontSize:"clamp(2rem,4.5vw,3.1rem)", fontWeight:800, letterSpacing:"-0.035em", lineHeight:1.14, margin:0 }}>
-                  Six ways Zeotap transforms <GT>Philips Personal Health</GT>
-                </h2>
-              </motion.div>
-
-              <motion.div variants={stagger} style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(320px,1fr))", gap:20 }}>
-                {[
-                  { emoji:"🎯", title:"D2C Acquisition",          color:T.philips,  body:"Build lookalike audiences from Philips.com purchasers and activate across paid media at higher match rates and lower CPAs." },
-                  { emoji:"🔄", title:"Subscription Upsell",       color:T.zeotap,  body:"Identify Lumea Try & Buy customers most likely to convert to annual plans and trigger personalised outreach at the right moment." },
-                  { emoji:"🛒", title:"Cross-Category Growth",     color:T.accent,  body:"Recognise Avent customers browsing Hue.com or Philips.com and trigger relevant category recommendations automatically." },
-                  { emoji:"🛡️", title:"Churn Suppression",        color:"#F59E0B", body:"Identify at-risk customers before they lapse and suppress from acquisition campaigns to protect budget and reduce wasted spend." },
-                  { emoji:"🌍", title:"Global Audience Portability",color:"#8B5CF6",body:"Build audiences once, deploy consistently across DE, NL, UK, and US markets via Oracle and Salesforce — consented and governed." },
-                  { emoji:"💛", title:"Post-Purchase Loyalty",     color:"#EC4899", body:"Trigger personalised accessory and spare-parts campaigns based on product purchase history and time-since-buy signals." },
-                ].map(u=>(
-                  <GlassCard key={u.title} style={{ padding:"22px" }}>
-                    <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:14 }}>
-                      <div style={{ width:38, height:38, borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", background:`${u.color}14`, fontSize:18 }}>{u.emoji}</div>
-                      <h3 style={{ fontSize:16, fontWeight:700, margin:0, letterSpacing:"-0.015em" }}>{u.title}</h3>
-                    </div>
-                    <p style={{ fontSize:14, color:T.muted, lineHeight:1.72, margin:0 }}>{u.body}</p>
-                    <div style={{ position:"absolute", bottom:0, left:0, right:0, height:2, background:`linear-gradient(90deg, transparent, ${u.color}40, transparent)`, borderRadius:"0 0 18px 18px" }}/>
-                  </GlassCard>
-                ))}
-              </motion.div>
-            </Section>
-          </section>
-
-          {/* ══════════ RESULTS ══════════ */}
-          <section id="results" style={{ position:"relative" }}>
-            <Section>
-              <motion.div variants={fadeUp} style={{ textAlign:"center", marginBottom:52 }}>
-                <Eyebrow>Proven Results</Eyebrow>
-                <h2 style={{ fontSize:"clamp(2rem,4.5vw,3.1rem)", fontWeight:800, letterSpacing:"-0.035em", lineHeight:1.14, margin:0 }}>
-                  What Zeotap customers <GT>achieve</GT>
-                </h2>
-              </motion.div>
-
-              {/* Stat cards */}
-              <motion.div variants={stagger} style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(270px,1fr))", gap:22 }}>
-                {[
-                  { value:37, prefix:"+", suffix:"%", label:"Conversion uplift",      sub:"VMO2 — paid media campaigns",     color:T.philips },
-                  { value:2.5, prefix:"+", suffix:"×", label:"Match rate improvement", sub:"Douglas — audience activation",   color:T.zeotap  },
-                  { value:1,   prefix:"£", suffix:"M", label:"Saved in suppression",   sub:"VMO2 — eliminating wasted spend", color:T.accent  },
-                ].map(s=>(
-                  <GlassCard key={s.label} style={{ textAlign:"center", padding:"44px 24px" }}>
-                    <div style={{ position:"absolute", top:0, left:"50%", transform:"translateX(-50%)", width:72, height:2, background:`linear-gradient(90deg, transparent, ${s.color}, transparent)` }}/>
-                    <div style={{ fontSize:"clamp(2.6rem,5vw,3.6rem)", fontWeight:900, letterSpacing:"-0.045em", color:s.color, lineHeight:1, marginBottom:12 }}>
-                      <Counter end={s.value} prefix={s.prefix} suffix={s.suffix}/>
-                    </div>
-                    <div style={{ fontSize:16, fontWeight:700, letterSpacing:"-0.01em", marginBottom:6 }}>{s.label}</div>
-                    <div style={{ fontSize:13, color:T.muted }}>{s.sub}</div>
-                  </GlassCard>
-                ))}
-              </motion.div>
-
-              {/* Case study */}
-              <motion.div variants={fadeUp} style={{ marginTop:44 }}>
-                <GlassCard noHover style={{ padding:"32px 36px" }}>
-                  <div style={{ display:"grid", gridTemplateColumns:"1fr auto", gap:32, alignItems:"center" }}>
-                    <div>
-                      <div style={{ fontSize:11, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:T.accent, marginBottom:12 }}>Case Study — Closest Analogue to Philips</div>
-                      <h3 style={{ fontSize:22, fontWeight:800, margin:"0 0 14px", letterSpacing:"-0.025em" }}>Douglas: Turning First-Party Data into Revenue</h3>
-                      <p style={{ fontSize:15, color:T.muted, lineHeight:1.74, margin:0 }}>Europe's leading beauty retailer faced fragmented data across online and in-store — a challenge closely mirrored by Philips Personal Health's D2C ambition. With Zeotap, Douglas achieved <strong style={{ color:T.text }}>+2.5× match rates</strong> and <strong style={{ color:T.text }}>+13% conversions</strong> in just 8 weeks to first live use case.</p>
-                    </div>
-                    <div style={{
-                      minWidth:110, minHeight:110, borderRadius:16, display:"flex", flexDirection:"column",
-                      alignItems:"center", justifyContent:"center", textAlign:"center",
-                      background:`linear-gradient(135deg, ${T.philips}18, ${T.zeotap}18)`,
-                      border:`1px solid ${T.zeotap}35`,
-                      padding:"16px",
-                    }}>
-                      <div style={{ fontSize:30, fontWeight:900, color:T.accent, lineHeight:1 }}>8</div>
-                      <div style={{ fontSize:11, color:T.muted, marginTop:6, lineHeight:1.4 }}>weeks to<br/>first use case</div>
-                    </div>
-                  </div>
-                </GlassCard>
-              </motion.div>
-            </Section>
-          </section>
-
-          {/* ══════════ VISION ══════════ */}
-          <section style={{ position:"relative", background:T.bgAlt, borderTop:`1px solid ${T.border}`, borderBottom:`1px solid ${T.border}`, overflow:"hidden" }}>
-            <Particles count={25}/>
-            <Section>
-              <motion.div variants={fadeUp} style={{ textAlign:"center", maxWidth:820, margin:"0 auto" }}>
-                <Eyebrow>The Vision</Eyebrow>
-                <h2 style={{ fontSize:"clamp(2rem,4.8vw,3.4rem)", fontWeight:900, letterSpacing:"-0.04em", lineHeight:1.1, margin:"0 0 28px" }}>
-                  Imagine a world where every Philips customer is{" "}
-                  <GT>known, consented, and reachable</GT>
-                  {" "}— everywhere.
-                </h2>
-                <p style={{ fontSize:17, color:T.muted, lineHeight:1.78, maxWidth:660, margin:"0 auto" }}>
-                  A parent buying Avent in the Netherlands gets a personalised Hue offer in the UK. A Lumea subscriber receives the right accessory at the right time. A HealthSuite user never sees an ad for a product they already own. This isn't hypothetical — it's what Zeotap CDP makes possible, today.
-                </p>
-              </motion.div>
-
-              <motion.div variants={stagger} style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))", gap:16, marginTop:56 }}>
-                {[
-                  { num:"01", title:"One Profile",       desc:"Across every product, market, and channel" },
-                  { num:"02", title:"Full Consent",       desc:"Governed, auditable, regulation-ready" },
-                  { num:"03", title:"Instant Activation", desc:"150+ connectors, real-time audiences" },
-                  { num:"04", title:"Measurable ROI",     desc:"From day one — not month six" },
-                ].map(v=>(
-                  <motion.div key={v.num} variants={fadeUp} style={{ padding:"28px 20px", textAlign:"center" }}>
-                    <div style={{
-                      fontSize:36, fontWeight:900, letterSpacing:"-0.05em", lineHeight:1,
-                      background:`linear-gradient(135deg, ${T.philips}55, ${T.zeotap}55)`,
-                      WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent",
-                      marginBottom:10,
-                    }}>{v.num}</div>
-                    <div style={{ fontSize:16, fontWeight:700, marginBottom:7 }}>{v.title}</div>
-                    <div style={{ fontSize:13, color:T.muted, lineHeight:1.55 }}>{v.desc}</div>
-                  </motion.div>
-                ))}
-              </motion.div>
-            </Section>
-          </section>
-
-          {/* ══════════ CTA ══════════ */}
-          <section style={{ position:"relative", overflow:"hidden" }}>
-            <div style={{
-              position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)",
-              width:700, height:500, borderRadius:"50%",
-              background:`radial-gradient(circle, ${T.zeotap}10 0%, transparent 68%)`,
-              filter:"blur(70px)", pointerEvents:"none",
-            }}/>
-            <Particles count={20}/>
-
-            <Section style={{ textAlign:"center" }}>
-              <motion.div variants={fadeUp}>
-                <Eyebrow>Next Steps</Eyebrow>
-                <h2 style={{ fontSize:"clamp(2.2rem,5vw,3.6rem)", fontWeight:900, letterSpacing:"-0.045em", lineHeight:1.1, margin:"0 0 20px" }}>
-                  Ready to <GT>unify</GT> Philips<br/>customer data?
-                </h2>
-                <p style={{ fontSize:17, color:T.muted, maxWidth:480, margin:"0 auto 44px", lineHeight:1.72 }}>
-                  Three steps to live audiences and measurable results.
-                </p>
-              </motion.div>
-
-              <motion.div variants={stagger} style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))", gap:20, maxWidth:920, margin:"0 auto" }}>
-                {[
-                  { step:"01", emoji:"📞", title:"Discovery Call",     body:"30-min deep dive into your data architecture, activation goals, and Oracle/Salesforce integration points." },
-                  { step:"02", emoji:"🗺️", title:"Use Case Workshop",  body:"Map 2–3 high-priority Philips use cases to Zeotap capabilities and define clear success metrics together." },
-                  { step:"03", emoji:"⚡", title:"Proof of Value",      body:"8-week POV on a live use case — typically paid media suppression or D2C audience activation." },
-                ].map(s=>(
-                  <GlassCard key={s.step}>
-                    <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:16 }}>
-                      <span style={{ fontSize:22 }}>{s.emoji}</span>
-                      <span style={{ fontSize:11, fontWeight:700, color:T.muted, letterSpacing:"0.12em", textTransform:"uppercase" }}>Step {s.step}</span>
-                    </div>
-                    <h3 style={{ fontSize:19, fontWeight:800, margin:"0 0 10px", letterSpacing:"-0.02em" }}>{s.title}</h3>
-                    <p style={{ fontSize:14, color:T.muted, lineHeight:1.72, margin:0 }}>{s.body}</p>
-                  </GlassCard>
-                ))}
-              </motion.div>
-
-              <motion.div variants={fadeUp} style={{ marginTop:48 }}>
-                <motion.button whileHover={{ scale:1.05 }} whileTap={{ scale:0.97 }}
-                  style={{
-                    background:`linear-gradient(135deg, ${T.philips}, ${T.zeotap})`,
-                    color:"white", border:"none", borderRadius:14, padding:"17px 44px",
-                    fontSize:16, fontWeight:800, cursor:"pointer",
-                    display:"inline-flex", alignItems:"center", gap:10,
-                    boxShadow:`0 0 45px ${T.zeotap}32, 0 0 90px ${T.zeotap}0D`,
-                  }}>
-                  Let's Talk →
-                </motion.button>
-              </motion.div>
-
-              {/* Footer */}
-              <motion.div variants={fadeUp} style={{ marginTop:80, paddingTop:32, borderTop:`1px solid ${T.border}`, display:"flex", alignItems:"center", justifyContent:"center", gap:24, flexWrap:"wrap" }}>
-                <span style={{ fontWeight:900, fontSize:16, letterSpacing:"0.04em", color:T.muted }}>PHILIPS</span>
-                <div style={{ width:1, height:18, background:T.border }}/>
-                <span style={{ fontWeight:900, fontSize:16, color:T.zeotap }}>zeotap</span>
-                <div style={{ width:1, height:18, background:T.border }}/>
-                <span style={{ fontSize:12, color:T.muted }}>zeotap.com</span>
-                <div style={{ width:1, height:18, background:T.border }}/>
-                <span style={{ fontSize:12, color:T.muted }}>© 2025 Zeotap GmbH</span>
-              </motion.div>
-            </Section>
-          </section>
-
-        </div>
-      );
-    }
-
-    ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
-  </script>
+// COUNTERS
+function runCounter(el){
+  var end=parseFloat(el.dataset.end);
+  var suf=el.dataset.suf||'';
+  var dec=parseInt(el.dataset.dec||'0');
+  var dur=2000;
+  var t0=null;
+  function step(ts){
+    if(!t0)t0=ts;
+    var p=Math.min((ts-t0)/dur,1);
+    var e=1-Math.pow(1-p,3);
+    var v=end*e;
+    el.textContent=(dec>0?v.toFixed(dec):Math.round(v))+suf;
+    if(p<1)requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+var cio=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if(e.isIntersecting){runCounter(e.target);cio.unobserve(e.target);}
+  });
+},{threshold:0.5});
+document.querySelectorAll('[data-end]').forEach(function(el){cio.observe(el);});
+</script>
 </body>
 </html>
